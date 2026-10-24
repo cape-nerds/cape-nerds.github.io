@@ -3,112 +3,154 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>The Road to ALevel</title>
+<title>The Road to ALevel · Cape-Nerds</title>
+<meta name="description" content="An interactive 3D paper-craft animated series and daily study RPG tracker for our A-Level 2027 journey against the 3-headed dragon.">
+<meta property="og:title" content="The Road to ALevel · Cape-Nerds">
+<meta property="og:description" content="An interactive 3D paper-craft animated series and daily study RPG tracker for our A-Level 2027 journey against the 3-headed dragon.">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@500;700;900&family=Josefin+Sans:wght@300;400&display=swap">
 <style>
-:root{--bg:#1d1730;--bg2:#2a2140;--card:#32284d;--ink:#f3e9dc;--mute:#b3a5c9;--accent:#ff8a5c;--red:#e5484d;--gold:#ffcf6b;--green:#5fd0a5;
-box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+:root{--bg:#0d0a16;--card:#1a1428;--ink:#f1e6d2;--mute:#a597bd;--ember:#d9694a;--gold:#e0b24a;--line:rgba(241,230,210,.14);
+color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 *{box-sizing:border-box}
-html{scroll-padding-top:env(safe-area-inset-top,0px)}
-body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;line-height:1.5}
-.hero{position:relative;height:72vh;min-height:430px;overflow:hidden;background:linear-gradient(#3b2a52,#c9694f 92%)}
+html{scroll-behavior:smooth;scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
+.serif{font-family:'Cinzel',Georgia,"Times New Roman",serif}
+.hero{position:relative;height:100vh;height:100svh;min-height:520px;overflow:hidden;background:linear-gradient(#24234f,#d9704f)}
 #c{position:absolute;inset:0;width:100%;height:100%;display:block}
-.title{position:absolute;left:0;right:0;top:0;padding:28px 20px 60px;text-align:center;background:linear-gradient(rgba(29,23,48,.75),transparent);pointer-events:none}
-.title small{letter-spacing:.35em;font-size:.72rem;color:var(--gold);font-family:system-ui,sans-serif}
-.title h1{margin:6px 0 4px;font-size:clamp(1.9rem,6vw,3.6rem);letter-spacing:.06em;text-shadow:0 3px 0 #0006}
-.title p{margin:0;color:var(--mute);font-style:italic}
-main{max-width:1000px;margin:0 auto;padding:28px 18px 60px}
-h2{font-size:.8rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);font-family:system-ui,sans-serif;margin:38px 0 14px}
-.airing{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:var(--card);border-left:6px solid var(--accent);padding:20px;border-radius:6px;box-shadow:6px 6px 0 #0005}
-.airing .ep{flex:1;min-width:220px}
-.tag{display:inline-block;font:700 .7rem system-ui,sans-serif;letter-spacing:.15em;background:var(--red);color:#fff;padding:3px 8px;border-radius:3px}
-.airing h3{margin:8px 0 4px;font-size:1.5rem}
-.airing p{margin:0;color:var(--mute)}
-.btn{font:700 .9rem system-ui,sans-serif;background:var(--accent);color:#2a1210;border:0;padding:12px 22px;border-radius:4px;cursor:pointer;box-shadow:3px 3px 0 #0006}
-.btn[disabled]{background:#6b5d85;color:#d6cce6;cursor:not-allowed}
-.hpwrap{background:var(--card);padding:18px 20px;border-radius:6px;box-shadow:6px 6px 0 #0005}
-.hprow{display:flex;justify-content:space-between;font:600 .85rem system-ui,sans-serif;margin-bottom:8px}
-.bar{height:16px;background:#150f24;border-radius:3px;overflow:hidden}
-.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--red),#ff7a59);transition:width 1s}
-.heroes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
-.hc{background:var(--card);padding:16px;border-radius:6px;border-top:5px solid var(--c);box-shadow:5px 5px 0 #0005}
-.hc h3{margin:0;font-size:1.15rem}
-.hc .role{color:var(--mute);font:.78rem system-ui,sans-serif;margin-bottom:12px}
-.hc .hrs{font:700 1.6rem system-ui,sans-serif}
-.hc .hrs span{font-size:.8rem;color:var(--mute);font-weight:400}
-.hc .bar{margin:8px 0}
-.hc .bar>i{background:var(--c)}
-.st{font:.82rem system-ui,sans-serif;color:var(--mute)}
-.season{background:var(--card);padding:18px 20px;border-radius:6px;box-shadow:6px 6px 0 #0005;margin-bottom:12px}
-.season.locked{opacity:.55}
-.season h3{margin:0 0 10px;font-size:1.1rem}
-.dots{display:flex;flex-wrap:wrap;gap:6px}
-.dots b{width:22px;height:22px;border-radius:3px;background:#150f24;font:.62rem/22px system-ui,sans-serif;text-align:center;color:var(--mute)}
-.dots b.on{background:var(--accent);color:#2a1210}
-.dots b.now{outline:2px solid var(--gold);background:var(--red);color:#fff}
-footer{text-align:center;color:var(--mute);font:.8rem system-ui,sans-serif;padding:0 18px calc(30px + env(safe-area-inset-bottom,0px))}
+.shade{position:absolute;inset:0;pointer-events:none;background:linear-gradient(rgba(13,10,22,.7),rgba(13,10,22,0) 28%,rgba(13,10,22,0) 55%,rgba(13,10,22,.92))}
+.brand{position:absolute;top:0;left:0;right:0;padding:18px 22px;font-size:.95rem;letter-spacing:.3em;font-weight:700;display:flex;align-items:center;gap:10px;pointer-events:none}
+.brand i{width:10px;height:10px;background:var(--ember);transform:rotate(45deg);display:inline-block}
+.top{position:absolute;top:8%;left:0;right:0;text-align:center;padding:0 16px;pointer-events:none}
+.top small{display:block;letter-spacing:.45em;font-size:.7rem;color:var(--gold);margin-bottom:8px}
+.top h1{margin:0;font-size:clamp(1.9rem,6.2vw,4.4rem);font-weight:900;letter-spacing:.07em;line-height:1.05;text-shadow:0 .08em 0 rgba(0,0,0,.45),0 0 28px rgba(0,0,0,.5)}
+.top p{margin:10px 0 0;color:#e7d6bd;font-size:clamp(.85rem,1.6vw,1.05rem);text-shadow:0 1px 8px rgba(0,0,0,.7)}
+.cta{position:absolute;left:0;right:0;bottom:9%;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;padding:0 16px}
+.hero-motto{position:absolute;left:0;right:0;bottom:2.8%;padding:0 12px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;color:var(--ink);opacity:.68;pointer-events:none}
+.hero-motto-quote{margin:0;font:400 .78rem/1.3 system-ui,-apple-system,'Segoe UI',sans-serif;letter-spacing:.015em;text-shadow:0 1px 8px rgba(0,0,0,.45)}
+.hero-motto-tag{font:400 .7rem/1.25 system-ui,-apple-system,'Segoe UI','Noto Sans Sinhala','Iskoola Pota',sans-serif;letter-spacing:.025em;color:var(--gold)}
+.btn{display:inline-flex;align-items:center;gap:10px;font:700 .95rem system-ui,sans-serif;letter-spacing:.04em;padding:15px 30px;border-radius:999px;cursor:pointer;border:1.5px solid var(--ink);color:var(--ink);background:rgba(13,10,22,.55);backdrop-filter:blur(6px);transition:transform .15s,background .15s;text-decoration:none}
+.btn:hover{transform:translateY(-2px);background:rgba(217,105,74,.35)}
+.btn.main{background:var(--ember);border-color:var(--ember);color:#240d08}
+.btn.main:hover{background:#ee7d5c}
+.btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.btn svg{width:18px;height:18px;fill:currentColor}
+section.seasons{max-width:1080px;margin:0 auto;padding:56px 20px 70px}
+.seasons h2{font-size:1.5rem;margin:0 0 22px;letter-spacing:.12em;display:flex;align-items:center;gap:14px}
+.seasons h2::after{content:none}
+.stab{display:flex;gap:14px;align-items:center;background:var(--card);border:1px solid var(--line);border-left:4px solid var(--ember);border-radius:8px;padding:16px 18px;margin-bottom:18px}
+.stab b{font-size:1.1rem}.stab span{color:var(--mute);font-size:.9rem}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.ep{position:relative;aspect-ratio:16/10;background:linear-gradient(160deg,#241a3a,#150f24);border:1px solid var(--line);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;justify-content:space-between;color:var(--mute);text-decoration:none}
+.ep .n{font:700 1.25rem 'Cinzel',Georgia,serif;color:var(--ink)}
+.ep .d{font-size:.75rem}
+.ep .t{font-size:.72rem;color:var(--mute)}
+.lock-icon{filter:grayscale(1);}
+.ep.on{border-color:var(--ember);color:var(--ink);cursor:pointer}
+.ep.on:hover{background:linear-gradient(160deg,#4a2a3a,#241a3a)}
+.ep.lock .n{opacity:.55}
+.new{position:absolute;top:8px;right:8px;background:var(--ember);color:#240d08;font:700 .6rem system-ui;letter-spacing:.12em;padding:2px 6px;border-radius:3px}
+footer{text-align:center;color:var(--mute);font-size:.78rem;padding:0 16px 30px}
+#tags{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+.nt{position:absolute;left:0;top:0;white-space:nowrap;font:300 .9rem/1 'Josefin Sans',system-ui,-apple-system,'Segoe UI',sans-serif;letter-spacing:.1em;color:rgba(255,255,255,.88);text-shadow:0 1px 4px rgba(0,0,0,.6);will-change:transform}
+@media(max-width:600px){.nt{font-size:.56rem;letter-spacing:.02em}}
+#tmodal{position:fixed;inset:0;z-index:50;background:#000;display:none}
+#tmodal.open{display:block}
+.ep.lock{border-style:dashed;opacity:.82;cursor:not-allowed}
+.lock-tag{position:absolute;top:8px;right:8px;background:rgba(224,178,74,.15);border:1px solid rgba(224,178,74,.4);color:var(--gold);font:700 .62rem system-ui;letter-spacing:.08em;padding:2px 6px;border-radius:3px;display:inline-flex;align-items:center;gap:3px}
+.motto-strip{position:relative;background:radial-gradient(ellipse at 50% 0%,rgba(217,105,74,.12),rgba(13,10,22,0) 70%),linear-gradient(180deg,#0d0a16 0%,#151022 50%,#0d0a16 100%);border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:46px 20px 48px;text-align:center}
+.motto-inner{max-width:860px;margin:0 auto;display:flex;flex-direction:column;align-items:center;gap:14px}
+.motto-crest{display:flex;align-items:center;gap:12px;color:var(--gold);opacity:.75}
+.crest-line{width:54px;height:1px;background:linear-gradient(90deg,transparent,var(--gold),transparent)}
+.crest-gem{width:7px;height:7px;background:var(--ember);transform:rotate(45deg);display:inline-block}
+.motto-quote{margin:0;font-size:clamp(1rem,2.1vw,1.3rem);font-weight:700;letter-spacing:.04em;color:var(--ink);text-shadow:0 2px 14px rgba(0,0,0,.65);line-height:1.35}
+.motto-tag-wrap{margin-top:2px}
+.motto-tag{display:inline-flex;align-items:center;gap:4px;padding:0;border-radius:0;background:none;border:0;box-shadow:none;color:var(--gold);font:600 .84rem/1.2 system-ui,-apple-system,'Segoe UI','Noto Sans Sinhala','Iskoola Pota',sans-serif;letter-spacing:.06em;text-decoration:none;transition:color .2s ease}
+.motto-tag:hover{transform:translateY(-1px);background:rgba(217,105,74,.22);border-color:var(--ember);box-shadow:0 6px 20px rgba(217,105,74,.25);color:#fff}
+.motto-tag .hash{color:var(--ember);font-weight:800;font-size:.9rem}
+#tmodal iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+#tclose{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:2;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--ink);background:rgba(13,10,22,.7);color:var(--ink);font-size:1.2rem;cursor:pointer}
 </style>
 </head>
 <body>
-<section class="hero">
-  <canvas id="c"></canvas>
-  <div class="title"><small>A STUDY-POWERED WEB SERIES</small><h1>THE ROAD TO ALEVEL</h1><p>Every hour you study is a blow against the dragon.</p></div>
+<header class="hero" id="hero">
+  <canvas id="c"></canvas><div class="shade"></div><div id="tags"></div>
+  <div class="brand serif"><i></i>CAPE-NERDS</div>
+  <div class="top serif"><small>CAPE-NERDS PRESENTS</small><h1>THE ROAD TO ALEVEL</h1></div>
+  <div class="cta">
+    <a class="btn" id="btnTrailer" href="trailer.html"><svg viewBox="0 0 24 24"><path d="M6 3.5v17l14-8.5z"/></svg>Watch Trailer</a>
+    <a class="btn main" href="#seasons">Watch Series</a>
+  </div>
+  <div class="hero-motto" aria-label="Series motto">
+    <p class="hero-motto-quote">Every hour is a blow against the dragon.</p>
+    <span class="hero-motto-tag">#සාගරේවගේසිලබස්</span>
+  </div>
+</header>
+
+<section class="seasons" id="seasons">
+  <h2 class="serif">SEASON 01</h2>
+  <div class="grid" id="eps"></div>
 </section>
+<footer>Cape-Nerds · one season a month · one episode a day · until the 2027 A Levels</footer>
 
-<main>
-  <h2>Now airing</h2>
-  <div class="airing">
-    <div class="ep"><span class="tag">NEW</span><h3 id="epTitle"></h3><p id="epSub"></p></div>
-    <button class="btn" disabled>▶ Coming soon</button>
-  </div>
-
-  <h2>The dragon</h2>
-  <div class="hpwrap">
-    <div class="hprow"><span>ALevel, the Three-Headed</span><span id="hpTxt"></span></div>
-    <div class="bar"><i id="hpBar"></i></div>
-  </div>
-
-  <h2>The party today</h2>
-  <div class="heroes" id="heroes"></div>
-
-  <h2>Seasons</h2>
-  <div id="seasons"></div>
-</main>
-<footer>One season a month · one episode a day · until the 2027 A Levels</footer>
+<div id="tmodal" role="dialog" aria-label="Trailer"><button id="tclose" type="button" aria-label="Close trailer">✕</button></div>
 
 <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
 <script>
-/* ===== DAILY UPDATE: edit only this block ===== */
+/* ===== DAILY UPDATE & AUTOMATED UNLOCK =====
+   Episode 1 automatically unlocks on 1 November 2026.
+   Before Nov 1: remains locked with release indicator.
+   On/after Nov 1: unlocks with active link and NEW badge. */
+const UNLOCK_DATE_E1 = new Date(2026, 10, 1, 0, 0, 0); // Month 10 = November in JS Date
+const NOW = new Date();
+const isE1Unlocked = NOW >= UNLOCK_DATE_E1;
+
 const STATE = {
-  seasonNo: 1, seasonName: "November 2026", day: 1,
-  episodeTitle: "The Road Begins",
-  episodeLine: "Four travellers leave the village. The dragon wakes.",
-  dragonHP: 100, dragonMax: 100,
-  heroes: [
-    {name:"Dr. Novice", role:"2nd-year Maths", hours:0, status:"Ready for battle", color:"#6fb7ff"},
-    {name:"Schrödinger’s Cat", role:"2nd-year Bio", hours:0, status:"Nervous, but here", color:"#8be28b"},
-    {name:"Pedro", role:"1st-year Maths", hours:0, status:"Up to mischief", color:"#ff8fc0"},
-    {name:"NotYourFriend", role:"Veteran · Job quest", hours:0, status:"Calm, watching", color:"#5fd0a5"}
-  ]
+  seasonNo: 1,
+  seasonName: "November 2026",
+  aired: isE1Unlocked ? 1 : 0,
+  titles: { 1: "The Road Begins" }
 };
-/* ============================================== */
+/* =========================================== */
 
-// ---- page content ----
-document.getElementById('epTitle').textContent = `S${STATE.seasonNo} · E${STATE.day} — ${STATE.episodeTitle}`;
-document.getElementById('epSub').textContent = STATE.episodeLine;
-document.getElementById('hpTxt').textContent = `${STATE.dragonHP} / ${STATE.dragonMax} HP`;
-document.getElementById('hpBar').style.width = (STATE.dragonHP/STATE.dragonMax*100)+'%';
-document.getElementById('heroes').innerHTML = STATE.heroes.map(h=>`
-  <div class="hc" style="--c:${h.color}"><h3>${h.name}</h3><div class="role">${h.role}</div>
-  <div class="hrs">${h.hours}<span> h today</span></div>
-  <div class="bar"><i style="width:${Math.min(h.hours/8*100,100)}%"></i></div>
-  <div class="st">${h.status}</div></div>`).join('');
-const names=["November 2026","December 2026","January 2027","February 2027","March 2027","April 2027","May 2027"];
-document.getElementById('seasons').innerHTML = names.map((n,i)=>{
-  const cur = i+1===STATE.seasonNo, past = i+1<STATE.seasonNo;
-  let dots=''; if(cur||past){for(let d=1;d<=30;d++)dots+=`<b class="${past||d<STATE.day?'on':d===STATE.day?'now':''}">${d}</b>`}
-  return `<div class="season ${cur||past?'':'locked'}"><h3>Season ${i+1} · ${n}${cur||past?'':' 🔒'}</h3><div class="dots">${dots||'Not yet aired'}</div></div>`}).join('');
+document.getElementById('eps').innerHTML = Array.from({length:1},(_,i)=>{
+  const d=i+1, on=d<=STATE.aired, isNew=d===STATE.aired&&d>0, tt=STATE.titles[d]||'';
+  if (on) {
+    const inner=`<span class="n">E${d}</span><span><div class="t">${tt||'Episode '+d}</div><div class="d">${d} Nov</div></span>${isNew?'<span class="new">NEW</span>':''}`;
+    return `<a class="ep on" href="episodes/s${STATE.seasonNo}-e${d}.html">${inner}</a>`;
+  } else {
+    const inner=`<span class="n">E${d}</span><span><div class="t"><span class="lock-icon">🔒</span> · Unlocks 1 Nov</div></span>`;
+    return `<div class="ep lock" title="Episode 1 unlocks on November 1, 2026">${inner}</div>`;
+  }
+}).join('');
 
-// ---- 3D scene ----
+/* trailer: separate page link and modal loading trailer.html */
+const tm=document.getElementById('tmodal');
+function openTrailer(e){
+  if (e && (e.ctrlKey || e.metaKey || e.shiftKey || window.innerWidth <= 768)) return;
+  if (e) e.preventDefault();
+  let f = tm.querySelector('iframe');
+  if (!f) {
+    f = document.createElement('iframe');
+    f.setAttribute('allow','autoplay; fullscreen');
+    f.src = 'trailer.html';
+    tm.appendChild(f);
+  }
+  tm.classList.add('open');
+  window.__paused = true;
+  document.body.style.overflow = 'hidden';
+}
+function closeTrailer(){
+  tm.classList.remove('open');
+  tm.querySelectorAll('iframe').forEach(f=>f.remove());
+  window.__paused = false;
+  document.body.style.overflow = '';
+}
+document.getElementById('btnTrailer').onclick = openTrailer;
+document.getElementById('tclose').onclick = closeTrailer;
+addEventListener('keydown', e => { if (e.key === 'Escape') closeTrailer(); });
+window.addEventListener('message', e => { if (e.data === 'close-trailer') closeTrailer(); });
+
 try{
 /* ===== CORE: helpers, materials, shard merging ===== */
 const T = THREE;
@@ -926,35 +968,51 @@ function updateDragon(t, dt, ctl) {
 }
 
 
-/* ===== HOMEPAGE STAGE (uses the exact cinematic world, heroes and dragon above) ===== */
-const canvas=document.getElementById('c');
+/* ===== HOMEPAGE STAGE: exact cinematic world, heroes and dragon ===== */
+const canvas=document.getElementById('c'), heroEl=document.getElementById('hero');
 const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=T.PCFSoftShadowMap;
-const camera=new T.PerspectiveCamera(36,2,0.5,1200);
+const camera=new T.PerspectiveCamera(40,2,0.5,1200);
 const Z0=8, RX=roadX(Z0), FOCUS=new T.Vector3(RX,0,Z0);
 const lineup=[['nyf',.5],['novice',.3],['cat',.1],['pedro',-.25]];
 lineup.forEach(([k,ry],i)=>{const h=heroes[k]; h.position.set(RX+(i-1.5)*2.9,0,Z0); h.rotation.y=ry;});
 let camZ=Z0+13;
+const NT={nyf:'NotYourFriend',novice:'Dr. Novice',cat:'Schrödinger\'s cat',pedro:'Pedro'};
+const tagBox=document.getElementById('tags'), tagEls={}, _tp=new T.Vector3();
+Object.keys(NT).forEach(k=>{const d=document.createElement('div');d.className='nt';d.textContent=NT[k];tagBox.appendChild(d);tagEls[k]=d});
+function placeTags(){
+  const w=heroEl.clientWidth,h=heroEl.clientHeight;
+  lineup.forEach(([k])=>{
+    heroes[k].userData.parts.head.getWorldPosition(_tp); _tp.y+=(k==='pedro'?1.6:1.2); _tp.project(camera);
+    const el=tagEls[k];
+    if(_tp.z>1){el.style.display='none';return}
+    el.style.display=''; el.style.transform='translate(-50%,-100%) translate('+((_tp.x*.5+.5)*w)+'px,'+((-_tp.y*.5+.5)*h-2)+'px)';
+  });
+}
 function resize(){
-  const w=canvas.clientWidth,h=canvas.clientHeight,a=w/h;
+  const w=heroEl.clientWidth,h=heroEl.clientHeight,a=w/h;
   renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5)); renderer.setSize(w,h,false);
-  camera.aspect=a; camera.updateProjectionMatrix(); camZ=Z0+13+Math.max(0,1.5-a)*16;
+  camera.aspect=a; camera.fov=a<0.8?50:40; camera.updateProjectionMatrix(); camZ=Z0+13+Math.max(0,1.5-a)*16;
 }
 addEventListener('resize',resize); resize();
+window.__paused=false;
 const clock=new T.Clock(); let last=0;
 function frame(){
+  requestAnimationFrame(frame);
+  if(window.__paused) return;
   const t=clock.getElapsedTime(), dt=Math.min(.05,t-last); last=t;
   lineup.forEach(([k,ry],i)=>animHero(heroes[k],t,0,{phase:i*1.3,lookY:-ry*.8,gazeX:0}));
-  updateWorld(48,camera.position,FOCUS);           /* mountain split, dragon risen */
+  updateWorld(48,camera.position,FOCUS);
   world.objs.grassUni.uTime.value=t; updateMotes(t,FOCUS.x,FOCUS.z);
-  updateDragon(48+t*.0,dt,{roar:.3+Math.sin(t*.7)*.15,flap:.5,jaw:[.25,.6+Math.sin(t*1.3)*.2,.25],fire:[0,.55,0]});
+  updateDragon(48,dt,{roar:.3+Math.sin(t*.7)*.15,flap:.5,jaw:[.25,.6+Math.sin(t*1.3)*.2,.25],fire:[0,.55,0]});
   camera.position.set(RX-2+Math.sin(t*.2)*1.2,3.2,camZ);
-  camera.lookAt(RX-2.2,5.6,-40);
-  renderer.render(scene,camera); requestAnimationFrame(frame);
+  camera.lookAt(RX-2.2,-2.7,-40);
+  renderer.render(scene,camera);
+  camera.updateMatrixWorld(); placeTags();
 }
 frame();
 
-}catch(e){console.error(e);document.querySelector(".hero").insertAdjacentHTML("beforeend","<p style='position:absolute;bottom:10px;left:10px;color:#ffb36a;font:12px monospace'>Scene error: "+e.message+"</p>")}
+}catch(e){console.error(e)}
 </script>
 </body>
 </html>

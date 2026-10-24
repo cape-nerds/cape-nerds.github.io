@@ -5,10 +5,20 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    base: './',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
-        '@': path.resolve(__dirname, '.'),
+        '@': path.resolve(import.meta.dirname, '.'),
+      },
+    },
+    build: {
+      rollupOptions: {
+        input: {
+          main: path.resolve(import.meta.dirname, 'index.html'),
+          trailer: path.resolve(import.meta.dirname, 'trailer.html'),
+          episode1: path.resolve(import.meta.dirname, 'episodes/s1-e1.html'),
+        },
       },
     },
     server: {
