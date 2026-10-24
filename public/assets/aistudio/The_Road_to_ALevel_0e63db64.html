@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>The Road to ALevel</title>
+<style>
+:root{--bg:#1d1730;--bg2:#2a2140;--card:#32284d;--ink:#f3e9dc;--mute:#b3a5c9;--accent:#ff8a5c;--red:#e5484d;--gold:#ffcf6b;--green:#5fd0a5;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:dark}
+*{box-sizing:border-box}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Georgia,"Times New Roman",serif;line-height:1.5}
+.hero{position:relative;height:72vh;min-height:430px;overflow:hidden;background:linear-gradient(#3b2a52,#c9694f 92%)}
+#c{position:absolute;inset:0;width:100%;height:100%;display:block}
+.title{position:absolute;left:0;right:0;top:0;padding:28px 20px 60px;text-align:center;background:linear-gradient(rgba(29,23,48,.75),transparent);pointer-events:none}
+.title small{letter-spacing:.35em;font-size:.72rem;color:var(--gold);font-family:system-ui,sans-serif}
+.title h1{margin:6px 0 4px;font-size:clamp(1.9rem,6vw,3.6rem);letter-spacing:.06em;text-shadow:0 3px 0 #0006}
+.title p{margin:0;color:var(--mute);font-style:italic}
+main{max-width:1000px;margin:0 auto;padding:28px 18px 60px}
+h2{font-size:.8rem;letter-spacing:.25em;text-transform:uppercase;color:var(--gold);font-family:system-ui,sans-serif;margin:38px 0 14px}
+.airing{display:flex;gap:18px;align-items:center;flex-wrap:wrap;background:var(--card);border-left:6px solid var(--accent);padding:20px;border-radius:6px;box-shadow:6px 6px 0 #0005}
+.airing .ep{flex:1;min-width:220px}
+.tag{display:inline-block;font:700 .7rem system-ui,sans-serif;letter-spacing:.15em;background:var(--red);color:#fff;padding:3px 8px;border-radius:3px}
+.airing h3{margin:8px 0 4px;font-size:1.5rem}
+.airing p{margin:0;color:var(--mute)}
+.btn{font:700 .9rem system-ui,sans-serif;background:var(--accent);color:#2a1210;border:0;padding:12px 22px;border-radius:4px;cursor:pointer;box-shadow:3px 3px 0 #0006}
+.btn[disabled]{background:#6b5d85;color:#d6cce6;cursor:not-allowed}
+.hpwrap{background:var(--card);padding:18px 20px;border-radius:6px;box-shadow:6px 6px 0 #0005}
+.hprow{display:flex;justify-content:space-between;font:600 .85rem system-ui,sans-serif;margin-bottom:8px}
+.bar{height:16px;background:#150f24;border-radius:3px;overflow:hidden}
+.bar>i{display:block;height:100%;background:linear-gradient(90deg,var(--red),#ff7a59);transition:width 1s}
+.heroes{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px}
+.hc{background:var(--card);padding:16px;border-radius:6px;border-top:5px solid var(--c);box-shadow:5px 5px 0 #0005}
+.hc h3{margin:0;font-size:1.15rem}
+.hc .role{color:var(--mute);font:.78rem system-ui,sans-serif;margin-bottom:12px}
+.hc .hrs{font:700 1.6rem system-ui,sans-serif}
+.hc .hrs span{font-size:.8rem;color:var(--mute);font-weight:400}
+.hc .bar{margin:8px 0}
+.hc .bar>i{background:var(--c)}
+.st{font:.82rem system-ui,sans-serif;color:var(--mute)}
+.season{background:var(--card);padding:18px 20px;border-radius:6px;box-shadow:6px 6px 0 #0005;margin-bottom:12px}
+.season.locked{opacity:.55}
+.season h3{margin:0 0 10px;font-size:1.1rem}
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dots b{width:22px;height:22px;border-radius:3px;background:#150f24;font:.62rem/22px system-ui,sans-serif;text-align:center;color:var(--mute)}
+.dots b.on{background:var(--accent);color:#2a1210}
+.dots b.now{outline:2px solid var(--gold);background:var(--red);color:#fff}
+footer{text-align:center;color:var(--mute);font:.8rem system-ui,sans-serif;padding:0 18px calc(30px + env(safe-area-inset-bottom,0px))}
+</style>
+</head>
+<body>
+<section class="hero">
+  <canvas id="c"></canvas>
+  <div class="title"><small>A STUDY-POWERED WEB SERIES</small><h1>THE ROAD TO ALEVEL</h1><p>Every hour you study is a blow against the dragon.</p></div>
+</section>
+
+<main>
+  <h2>Now airing</h2>
+  <div class="airing">
+    <div class="ep"><span class="tag">NEW</span><h3 id="epTitle"></h3><p id="epSub"></p></div>
+    <button class="btn" disabled>▶ Coming soon</button>
+  </div>
+
+  <h2>The dragon</h2>
+  <div class="hpwrap">
+    <div class="hprow"><span>ALevel, the Three-Headed</span><span id="hpTxt"></span></div>
+    <div class="bar"><i id="hpBar"></i></div>
+  </div>
+
+  <h2>The party today</h2>
+  <div class="heroes" id="heroes"></div>
+
+  <h2>Seasons</h2>
+  <div id="seasons"></div>
+</main>
+<footer>One season a month · one episode a day · until the 2027 A Levels</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js"></script>
+<script>
+/* ===== DAILY UPDATE: edit only this block ===== */
+const STATE = {
+  seasonNo: 1, seasonName: "November 2026", day: 1,
+  episodeTitle: "The Road Begins",
+  episodeLine: "Four travellers leave the village. The dragon wakes.",
+  dragonHP: 100, dragonMax: 100,
+  heroes: [
+    {name:"Dr. Novice", role:"2nd-year Maths", hours:0, status:"Ready for battle", color:"#6fb7ff"},
+    {name:"Schrödinger’s Cat", role:"2nd-year Bio", hours:0, status:"Nervous, but here", color:"#8be28b"},
+    {name:"Pedro", role:"1st-year Maths", hours:0, status:"Up to mischief", color:"#ff8fc0"},
+    {name:"NotYourFriend", role:"Veteran · Job quest", hours:0, status:"Calm, watching", color:"#5fd0a5"}
+  ]
+};
+/* ============================================== */
+
+// ---- page content ----
+document.getElementById('epTitle').textContent = `S${STATE.seasonNo} · E${STATE.day} — ${STATE.episodeTitle}`;
+document.getElementById('epSub').textContent = STATE.episodeLine;
+document.getElementById('hpTxt').textContent = `${STATE.dragonHP} / ${STATE.dragonMax} HP`;
+document.getElementById('hpBar').style.width = (STATE.dragonHP/STATE.dragonMax*100)+'%';
+document.getElementById('heroes').innerHTML = STATE.heroes.map(h=>`
+  <div class="hc" style="--c:${h.color}"><h3>${h.name}</h3><div class="role">${h.role}</div>
+  <div class="hrs">${h.hours}<span> h today</span></div>
+  <div class="bar"><i style="width:${Math.min(h.hours/8*100,100)}%"></i></div>
+  <div class="st">${h.status}</div></div>`).join('');
+const names=["November 2026","December 2026","January 2027","February 2027","March 2027","April 2027","May 2027"];
+document.getElementById('seasons').innerHTML = names.map((n,i)=>{
+  const cur = i+1===STATE.seasonNo, past = i+1<STATE.seasonNo;
+  let dots=''; if(cur||past){for(let d=1;d<=30;d++)dots+=`<b class="${past||d<STATE.day?'on':d===STATE.day?'now':''}">${d}</b>`}
+  return `<div class="season ${cur||past?'':'locked'}"><h3>Season ${i+1} · ${n}${cur||past?'':' 🔒'}</h3><div class="dots">${dots||'Not yet aired'}</div></div>`}).join('');
+
+// ---- 3D scene ----
+try{
+/* ===== CORE: helpers, materials, shard merging ===== */
+const T = THREE;
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const sm = (a, b, x) => { const t = clamp((x - a) / (b - a)); return t * t * (3 - 2 * t); };
+const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const easeOut = t => 1 - Math.pow(1 - t, 3);
+function rng(seed) { let s = seed >>> 0; return () => (s = (Math.imul(s, 1664525) + 1013904223) >>> 0) / 4294967296; }
+const R = rng(20261024);
+const rr = (a, b) => a + (b - a) * R();
+
+const PAL = {
+  skyTop: 0x24234f, skyMid: 0x6d3568, skyLow: 0xd9704f, skyHot: 0xf2b45a,
+  fog: 0xb86a63,
+  teal: 0x2d6a68, tealDark: 0x1d4a50, indigo: 0x3b3f7a, plum: 0x5a2d62,
+  sand: 0xd2a15f, mustard: 0xd6a53a, coral: 0xd9694a, cream: 0xe6d8bd,
+  ink: 0x15131f, steel: 0x8f98ab, gold: 0xe0b24a,
+  skinNovice: 0x8f5f3c, skinCat: 0xa8744c, skinPedro: 0xc8946a, skinNYF: 0xcf9d74,
+  dragonRed: 0xb3261e, dragonDark: 0x6a1418, dragonHot: 0xe0502e, dragonBone: 0xe7c9a0
+};
+
+/* paper grain texture (subtle fibres) */
+function makeCanvas(w, h) { const c = document.createElement('canvas'); c.width = w; c.height = h; return c; }
+const grainTex = (() => {
+  const c = makeCanvas(256, 256), g = c.getContext('2d');
+  g.fillStyle = '#ececec'; g.fillRect(0, 0, 256, 256);
+  const r = rng(7);
+  for (let i = 0; i < 5000; i++) {
+    const v = 205 + (r() * 50) | 0;
+    g.fillStyle = 'rgba(' + v + ',' + v + ',' + v + ',' + (0.25 + r() * 0.4) + ')';
+    g.fillRect(r() * 256, r() * 256, 1 + r() * 2, 1);
+  }
+  for (let i = 0; i < 260; i++) {
+    g.strokeStyle = 'rgba(255,255,255,' + (0.1 + r() * 0.15) + ')';
+    g.beginPath(); const x = r() * 256, y = r() * 256; g.moveTo(x, y); g.lineTo(x + (r() - .5) * 18, y + (r() - .5) * 18); g.stroke();
+  }
+  const t = new T.CanvasTexture(c); t.wrapS = t.wrapT = T.RepeatWrapping; return t;
+})();
+
+const matCache = {};
+function mat(color, o = {}) {
+  const key = color + JSON.stringify(o);
+  if (matCache[key]) return matCache[key];
+  const m = new T.MeshStandardMaterial(Object.assign({ color, roughness: 0.95, metalness: 0, flatShading: true, map: grainTex }, o));
+  matCache[key] = m; return m;
+}
+const basic = (color, o = {}) => new T.MeshBasicMaterial(Object.assign({ color }, o));
+
+function mesh(geo, m, shadow = true) {
+  const me = new T.Mesh(geo, m); me.castShadow = shadow; me.receiveShadow = true; return me;
+}
+function box(w, h, d, m) { return mesh(new T.BoxGeometry(w, h, d), m); }
+
+/* merge many shards into one flat-shaded vertex-coloured mesh */
+class Shards {
+  constructor() { this.pos = []; this.col = []; this._c = new T.Color(); }
+  add(geo, matrix, color) {
+    const g = geo.index ? geo.toNonIndexed() : geo.clone();
+    g.applyMatrix4(matrix);
+    const p = g.attributes.position.array;
+    this._c.set(color);
+    for (let i = 0; i < p.length; i += 3) {
+      this.pos.push(p[i], p[i + 1], p[i + 2]);
+      this.col.push(this._c.r, this._c.g, this._c.b);
+    }
+    g.dispose();
+  }
+  build(extra = {}) {
+    const g = new T.BufferGeometry();
+    g.setAttribute('position', new T.Float32BufferAttribute(this.pos, 3));
+    g.setAttribute('color', new T.Float32BufferAttribute(this.col, 3));
+    g.computeVertexNormals();
+    const m = new T.MeshStandardMaterial(Object.assign({ vertexColors: true, roughness: 0.9, metalness: 0, flatShading: true }, extra));
+    const me = new T.Mesh(g, m); me.castShadow = true; me.receiveShadow = true; return me;
+  }
+}
+const _m4 = new T.Matrix4(), _q = new T.Quaternion(), _e = new T.Euler(), _v = new T.Vector3(), _s = new T.Vector3();
+function mtx(px, py, pz, sx, sy, sz, rx = 0, ry = 0, rz = 0) {
+  _e.set(rx, ry, rz); _q.setFromEuler(_e); _v.set(px, py, pz); _s.set(sx, sy, sz);
+  return _m4.clone().compose(_v, _q, _s);
+}
+/* colour jitter helper */
+function jitter(hex, amt) {
+  const c = new T.Color(hex); const k = 1 + (R() - .5) * amt;
+  c.r = clamp(c.r * k); c.g = clamp(c.g * k); c.b = clamp(c.b * k); return c.getHex();
+}
+
+/* shared shard geometries */
+const G = {
+  tet: new T.TetrahedronGeometry(1, 0),
+  oct: new T.OctahedronGeometry(1, 0),
+  ico: new T.IcosahedronGeometry(1, 0),
+  cone4: new T.ConeGeometry(1, 2, 4, 1),
+  cone5: new T.ConeGeometry(1, 2, 5, 1),
+  box: new T.BoxGeometry(1, 1, 1)
+};
+
+/* state shared across modules */
+const world = { scene: new T.Scene(), objs: {} };
+const scene = world.scene;
+
+/* ===== WORLD: sky, sun, light, terrain, road, mountain ===== */
+const SUN_POS = new T.Vector3(-110, 85, -300);
+const SUN_DIR = SUN_POS.clone().normalize();
+const roadX = z => Math.sin(z * 0.035) * 7 + Math.sin(z * 0.011 + 1) * 5;
+const roadDX = z => Math.cos(z * 0.035) * 0.245 + Math.cos(z * 0.011 + 1) * 0.055;
+const MOUNT = new T.Vector3(roadX(-112) * 0.6, 0, -112);
+
+scene.fog = new T.Fog(PAL.fog, 80, 430);
+scene.background = new T.Color(PAL.skyLow);
+
+/* sky group follows the camera so it has no parallax */
+const skyGroup = new T.Group(); scene.add(skyGroup);
+(function sky() {
+  const m = new T.ShaderMaterial({
+    side: T.BackSide, depthWrite: false, fog: false,
+    uniforms: {
+      top: { value: new T.Color(PAL.skyTop) }, mid: { value: new T.Color(PAL.skyMid) },
+      low: { value: new T.Color(PAL.skyLow) }, hot: { value: new T.Color(PAL.skyHot) },
+      sunDir: { value: SUN_DIR }
+    },
+    vertexShader: 'varying vec3 vDir; void main(){ vDir = normalize(position); gl_Position = projectionMatrix*modelViewMatrix*vec4(position,1.0); }',
+    fragmentShader: 'varying vec3 vDir; uniform vec3 top,mid,low,hot,sunDir; void main(){ float h = vDir.y; vec3 c = mix(low, mid, smoothstep(0.0,0.26,h)); c = mix(c, top, smoothstep(0.2,0.8,h)); float s = max(dot(vDir,sunDir),0.0); c += hot*pow(s,9.0)*0.5 + hot*pow(s,70.0)*0.45; c = mix(c, low*0.85, smoothstep(0.0,-0.25,h)); gl_FragColor = vec4(c,1.0); }'
+  });
+  const s = new T.Mesh(new T.SphereGeometry(800, 24, 16), m); s.renderOrder = -10; s.frustumCulled = false; skyGroup.add(s);
+  /* paper-cut sun: stacked discs */
+  const cols = [0xd9704f, 0xe8895a, 0xf2a35a, 0xf6c46c, 0xfbe3a0], rad = [34, 27, 20, 14, 8];
+  const g = new T.Group(); g.position.copy(SUN_POS); g.lookAt(0, 0, 0);
+  cols.forEach((c, i) => {
+    const d = new T.Mesh(new T.CircleGeometry(rad[i], 40), basic(c, { fog: false }));
+    d.position.z = i * 0.6; g.add(d);
+  });
+  skyGroup.add(g);
+  /* paper clouds */
+  const rc = rng(99);
+  for (let i = 0; i < 9; i++) {
+    const cg = new T.Group();
+    const n = 3 + (rc() * 2 | 0);
+    for (let k = 0; k < n; k++) {
+      const geo = new T.CylinderGeometry(1, 1, 0.5, 7);
+      const me = new T.Mesh(geo, basic(k % 2 ? 0xe58a6c : 0xc9667a, { fog: false }));
+      me.scale.set(9 + rc() * 8, 1, 3 + rc() * 2.5); me.position.set(k * 7 - n * 3, k * 0.5, rc() * 3);
+      cg.add(me);
+    }
+    const a = -2.6 + rc() * 1.9, el = 0.1 + rc() * 0.2;
+    cg.position.set(Math.sin(a) * 420, 60 + rc() * 70, -Math.cos(a) * 420 - 80);
+    cg.lookAt(0, cg.position.y, 0); cg.userData.drift = 0.4 + rc() * 0.6; cg.userData.base = cg.position.clone();
+    skyGroup.add(cg); (world.objs.clouds = world.objs.clouds || []).push(cg);
+  }
+})();
+
+/* lights: strong low sun with sharp shadows, cool fill */
+const sun = new T.DirectionalLight(0xffb774, 2.0);
+sun.castShadow = true;
+sun.shadow.mapSize.set(4096, 4096);
+sun.shadow.camera.left = -55; sun.shadow.camera.right = 55;
+sun.shadow.camera.top = 55; sun.shadow.camera.bottom = -55;
+sun.shadow.camera.near = 10; sun.shadow.camera.far = 520;
+sun.shadow.camera.updateProjectionMatrix(); sun.shadow.bias = -0.0004; sun.shadow.normalBias = 0.06; sun.shadow.radius = 1.2;
+scene.add(sun); scene.add(sun.target);
+const hemi = new T.HemisphereLight(0x8d7fc4, 0x3a2b4b, 0.75); scene.add(hemi);
+const fill = new T.DirectionalLight(0x6a8cc8, 0.35); fill.position.set(40, 30, 120); scene.add(fill);
+function updateSun(cx, cz) {
+  sun.target.position.set(cx, 0, cz);
+  sun.position.copy(sun.target.position).addScaledVector(SUN_DIR, 260);
+  sun.target.updateMatrixWorld();
+}
+
+/* ground */
+const groundGrain = grainTex.clone(); groundGrain.needsUpdate = true; groundGrain.repeat.set(160, 160);
+const ground = mesh(new T.PlaneGeometry(900, 900), new T.MeshStandardMaterial({ color: PAL.teal, roughness: 1, flatShading: true, map: groundGrain }), false);
+ground.rotation.x = -Math.PI / 2; ground.position.set(0, -0.02, -120); scene.add(ground);
+
+/* paper road: instanced plates following the curve */
+(function road() {
+  const N = 150, z0 = 70, z1 = -215, step = (z1 - z0) / N;
+  const geo = new T.BoxGeometry(1, 0.3, 1);
+  const rm = new T.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true, map: grainTex });
+  const im = new T.InstancedMesh(geo, rm, N * 3); im.receiveShadow = true;
+  const dummy = new T.Object3D(), col = new T.Color(); const r = rng(5); let k = 0;
+  for (let i = 0; i < N; i++) {
+    const z = z0 + i * step, x = roadX(z), yaw = Math.atan2(roadDX(z), 1);
+    for (let s = -1; s <= 1; s++) {
+      const wide = s === 0 ? 5.4 : 0.9, off = s * 3.1;
+      dummy.position.set(x + Math.cos(yaw) * off, s === 0 ? 0.15 : 0.08, z - Math.sin(yaw) * off);
+      dummy.rotation.set(0, yaw, 0); dummy.scale.set(wide, 1, Math.abs(step) * 1.25);
+      dummy.updateMatrix(); im.setMatrixAt(k, dummy.matrix);
+      col.set(s === 0 ? 0xd2a15f : 0x9a6a46); col.multiplyScalar(0.92 + r() * 0.16); im.setColorAt(k, col); k++;
+    }
+  }
+  scene.add(im);
+})();
+
+/* paper-cut ridges (extruded silhouettes) */
+function silhouette(len, base, amp, seed, jag) {
+  const pts = [], r = rng(seed);
+  const ph = [r() * 6, r() * 6, r() * 6];
+  for (let u = 0; u <= len; u += jag) {
+    const h = base + amp * (0.55 * Math.sin(u * 0.03 + ph[0]) + 0.3 * Math.sin(u * 0.071 + ph[1]) + 0.15 * Math.sin(u * 0.19 + ph[2])) + (r() - .5) * amp * 0.35;
+    pts.push([u, Math.max(1, h)]);
+  }
+  return pts;
+}
+function extrudeSil(pts, depth, color, bottom = -6) {
+  const sh = new T.Shape(); sh.moveTo(pts[0][0], bottom);
+  pts.forEach(p => sh.lineTo(p[0], p[1]));
+  sh.lineTo(pts[pts.length - 1][0], bottom); sh.closePath();
+  const g = new T.ExtrudeGeometry(sh, { depth, bevelEnabled: false, steps: 1 });
+  return mesh(g, mat(color));
+}
+(function ridges() {
+  const cols = [0x2d6a68, 0x2f6277, 0x35588a, 0x40508f, 0x4a4a92, 0x56468f];
+  for (let side = -1; side <= 1; side += 2) {
+    for (let i = 0; i < 6; i++) {
+      const pts = silhouette(360, 5 + i * 3.6, 7 + i * 1.6, 40 + i * 7 + (side > 0 ? 100 : 0), 4.5);
+      const me = extrudeSil(pts, 7, cols[i]);
+      me.rotation.y = Math.PI / 2;                     /* local x -> world -z, local z -> world +x */
+      me.position.set(side * (24 + i * 15) - (side < 0 ? 7 : 0), 0, 90);
+      scene.add(me);
+    }
+  }
+  /* far backdrop ranges across the horizon */
+  const bc = [0x4a3f86, 0x5b3f86, 0x6e4388, 0x86497f, 0xa4586f];
+  for (let j = 0; j < 5; j++) {
+    const pts = silhouette(520, 22 + j * 3, 22 - j * 1.5, 300 + j * 11, 7).map(p => [p[0] - 260, p[1]]);
+    const me = extrudeSil(pts, 4, bc[j], -10);
+    me.position.set(0, 0, -165 - j * 22); scene.add(me);
+  }
+})();
+
+/* the mountain: jagged slabs that can split apart */
+function jaggedFrustum(rb, rt, h, seg, color, seed) {
+  const g = new T.CylinderGeometry(rt, rb, h, seg, 2, false); const p = g.attributes.position; const r = rng(seed);
+  for (let i = 0; i < p.count; i++) {
+    const k = 1 + (r() - .5) * 0.3;
+    p.setXYZ(i, p.getX(i) * k, p.getY(i) + (r() - .5) * h * 0.08, p.getZ(i) * k);
+  }
+  g.computeVertexNormals();
+  return mesh(g, mat(color));
+}
+const mountain = { left: new T.Group(), right: new T.Group(), pieces: [], crater: null };
+(function mountainBuild() {
+  const base = new T.Group(); base.position.copy(MOUNT); scene.add(base); mountain.root = base;
+  const cols = [0x2b2250, 0x37285e, 0x2a2a5a, 0x41306a];
+  /* left and right shoulders */
+  const L = [[-17, 0, 3, 15, 27], [-33, 0, 8, 17, 20], [-10, 0, 8, 10, 15]];
+  const Rr = [[18, 0, 1, 14, 25], [34, 0, 7, 16, 18], [11, 0, 8, 10, 14]];
+  L.forEach((a, i) => { const c = jaggedFrustum(a[3], 0.6, a[4], 6, cols[i], 11 + i); c.position.set(a[0], a[4] / 2, a[2]); mountain.left.add(c); });
+  Rr.forEach((a, i) => { const c = jaggedFrustum(a[3], 0.6, a[4], 6, cols[(i + 1) % 4], 21 + i); c.position.set(a[0], a[4] / 2, a[2]); mountain.right.add(c); });
+  base.add(mountain.left); base.add(mountain.right);
+  /* centre peak: stacked slabs + spikes that burst outward */
+  const slabs = [[0, 7, 14, 15, 11, 0x35285c], [0, 21, 14, 11, 7, 0x2e2552], [0, 33, 12, 7, 0.5, 0x3d2d66]];
+  slabs.forEach((s, i) => {
+    const m = jaggedFrustum(s[3], s[4], s[2], 7, s[5], 31 + i); m.position.set(s[0], s[1], 0);
+    base.add(m); mountain.pieces.push({ m, p0: m.position.clone(), v: new T.Vector3((i - 1) * 3, 6 + i * 3, -2 + i), spin: new T.Vector3(rr(-.6, .6), rr(-.5, .5), rr(-.6, .6)), r: 5 });
+  });
+  for (let i = 0; i < 9; i++) {
+    const a = i / 9 * Math.PI * 2, rad = 9 + R() * 4;
+    const sp = mesh(new T.ConeGeometry(2.4 + R() * 2, 10 + R() * 12, 5), mat(cols[i % 4]));
+    sp.position.set(Math.cos(a) * rad, 5 + R() * 6, Math.sin(a) * rad * 0.6);
+    sp.rotation.set((R() - .5) * 0.3, R() * 6, (R() - .5) * 0.3); base.add(sp);
+    mountain.pieces.push({ m: sp, p0: sp.position.clone(), v: new T.Vector3(Math.cos(a) * 9, 10 + R() * 8, Math.sin(a) * 6 - 2), spin: new T.Vector3(rr(-1, 1), rr(-1, 1), rr(-1, 1)), r: 2 });
+  }
+  /* glowing crater */
+  const cr = new T.Mesh(new T.CircleGeometry(15, 8), basic(0xff6a2a, { fog: false, transparent: true, opacity: 0 }));
+  cr.rotation.x = -Math.PI / 2; cr.position.y = 0.4; base.add(cr); mountain.crater = cr;
+  const glow = new T.PointLight(0xff6a2a, 0, 120, 2); glow.position.set(0, 6, 4); base.add(glow); mountain.glow = glow;
+})();
+const T_CRACK = 35.0;
+function updateMountain(t) {
+  const tau = Math.max(0, t - T_CRACK), g = 14;
+  const open = easeOut(clamp(tau / 4.5));
+  mountain.left.position.set(-open * 13, -open * 2.2, -open * 1.5); mountain.left.rotation.z = open * 0.11;
+  mountain.right.position.set(open * 13, -open * 2.2, -open * 1.5); mountain.right.rotation.z = -open * 0.11;
+  mountain.pieces.forEach(pc => {
+    const x = pc.p0.x + pc.v.x * tau, z = pc.p0.z + pc.v.z * tau;
+    let y = pc.p0.y + pc.v.y * tau - 0.5 * g * tau * tau; const floor = pc.r * 0.3 - 1;
+    if (y < floor) y = floor;
+    pc.m.position.set(x, y, z);
+    const ts = Math.min(tau, 3.2); pc.m.rotation.set(pc.spin.x * ts, pc.spin.y * ts, pc.spin.z * ts);
+  });
+  mountain.crater.material.opacity = sm(T_CRACK, T_CRACK + 2.5, t) * 0.85;
+  mountain.glow.intensity = sm(T_CRACK, T_CRACK + 3, t) * (2.6 + Math.sin(t * 13) * 0.5);
+}
+
+/* trees, grass, rocks (instanced) */
+(function scatter() {
+  const r = rng(77), dummy = new T.Object3D(), col = new T.Color();
+  const treeMat = new T.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true, map: grainTex });
+  const levels = [[1.5, 2.4, 1.0], [1.15, 2.1, 2.1], [0.8, 1.8, 3.1]];
+  const N = 260, ims = levels.map(l => { const im = new T.InstancedMesh(new T.ConeGeometry(l[0], l[1], 5), treeMat, N); im.castShadow = true; im.receiveShadow = true; return im; });
+  let n = 0;
+  while (n < N) {
+    const z = 50 - r() * 210, side = r() < .5 ? -1 : 1, off = 7.5 + Math.pow(r(), 1.3) * 34;
+    const x = roadX(z) + side * off, s = 0.8 + r() * 1.1, yaw = r() * 6;
+    const c = [0x1f5a58, 0x24655f, 0x2b5a72, 0x3b4f86, 0x2a6a50][(r() * 5) | 0]; col.set(c).multiplyScalar(0.9 + r() * 0.2);
+    levels.forEach((l, i) => {
+      dummy.position.set(x, l[2] * s + l[1] * s * 0.5 - 0.2, z); dummy.rotation.set(0, yaw + i, 0); dummy.scale.set(s, s, s);
+      dummy.updateMatrix(); ims[i].setMatrixAt(n, dummy.matrix); ims[i].setColorAt(n, col);
+    });
+    n++;
+  }
+  ims.forEach(im => scene.add(im));
+  /* rocks */
+  const rk = new T.InstancedMesh(new T.OctahedronGeometry(1, 0), new T.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true, map: grainTex }), 90);
+  rk.castShadow = rk.receiveShadow = true;
+  for (let i = 0; i < 90; i++) {
+    const z = 40 - r() * 200, side = r() < .5 ? -1 : 1, x = roadX(z) + side * (4.2 + r() * 12), s = 0.3 + r() * 0.9;
+    dummy.position.set(x, s * 0.4, z); dummy.rotation.set(r() * 3, r() * 3, r() * 3); dummy.scale.set(s * 1.4, s, s * 1.1);
+    dummy.updateMatrix(); rk.setMatrixAt(i, dummy.matrix); rk.setColorAt(i, col.set([0x6b6a8c, 0x7d6a88, 0x59597f][i % 3]));
+  }
+  scene.add(rk);
+  /* swaying paper grass */
+  const gg = new T.ConeGeometry(0.14, 1, 3); gg.translate(0, 0.5, 0);
+  const gm = new T.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true });
+  const uni = { uTime: { value: 0 } }; world.objs.grassUni = uni;
+  gm.onBeforeCompile = sh => {
+    sh.uniforms.uTime = uni.uTime;
+    sh.vertexShader = 'uniform float uTime;\n' + sh.vertexShader.replace('#include <begin_vertex>',
+      '#include <begin_vertex>\n#ifdef USE_INSTANCING\n transformed.x += sin(uTime*2.2 + instanceMatrix[3].x*0.6 + instanceMatrix[3].z*0.35)*0.28*position.y;\n transformed.z += cos(uTime*1.7 + instanceMatrix[3].z*0.5)*0.12*position.y;\n#endif');
+  };
+  const GN = 1100, gi = new T.InstancedMesh(gg, gm, GN); gi.receiveShadow = true; gi.castShadow = true;
+  for (let i = 0; i < GN; i++) {
+    const z = 55 - r() * 190, side = r() < .5 ? -1 : 1, x = roadX(z) + side * (3.4 + Math.pow(r(), 1.5) * 20), s = 0.7 + r() * 1.1;
+    dummy.position.set(x, 0, z); dummy.rotation.set(0, r() * 6, 0); dummy.scale.set(s, s * (0.8 + r() * 0.8), s);
+    dummy.updateMatrix(); gi.setMatrixAt(i, dummy.matrix);
+    gi.setColorAt(i, col.set([0x3f8a6a, 0x4f9a68, 0x6aa05c, 0x358074][i % 4]).multiplyScalar(0.85 + r() * 0.3));
+  }
+  scene.add(gi);
+})();
+
+/* floating paper motes in the low sun */
+const motes = (() => {
+  const N = 160, im = new T.InstancedMesh(new T.OctahedronGeometry(0.07, 0), basic(0xffe0a6, { fog: false }), N);
+  const seeds = []; const r = rng(31);
+  for (let i = 0; i < N; i++) seeds.push([r(), r(), r(), r() * 6]);
+  scene.add(im); return { im, seeds, dummy: new T.Object3D() };
+})();
+function updateMotes(t, cx, cz) {
+  const { im, seeds, dummy } = motes;
+  seeds.forEach((s, i) => {
+    dummy.position.set(cx + (s[0] - .5) * 40 + Math.sin(t * 0.4 + s[3]) * 1.5, 0.6 + s[1] * 9 + Math.sin(t * 0.7 + s[3] * 2) * 0.4, cz + (s[2] - .5) * 40 - Math.cos(t * 0.3 + s[3]) * 1.5);
+    dummy.rotation.set(t * 0.6 + s[3], t * 0.5, 0); dummy.updateMatrix(); im.setMatrixAt(i, dummy.matrix);
+  });
+  im.instanceMatrix.needsUpdate = true;
+}
+function updateWorld(t, camPos, focus) {
+  skyGroup.position.copy(camPos);
+  (world.objs.clouds || []).forEach(c => { c.position.x = c.userData.base.x + Math.sin(t * 0.05 * c.userData.drift) * 10; });
+  world.objs.grassUni.uTime.value = t;
+  updateMountain(t); updateMotes(t, focus.x, focus.z);
+  updateSun(focus.x, focus.z - 22);
+}
+
+/* ===== HEROES: chibi paper-craft rigs (no mouths) ===== */
+const skinMat = c => new T.MeshStandardMaterial({ color: c, roughness: 0.9, flatShading: false });
+const eyeWhite = new T.MeshBasicMaterial({ color: 0xf4ecd8 });
+const eyeDark = new T.MeshBasicMaterial({ color: 0x14111c });
+const hairMat = new T.MeshStandardMaterial({ color: 0x14121a, roughness: 0.85, flatShading: true, map: grainTex });
+
+function makeEye(side, o) {
+  const g = new T.Group();
+  const w = new T.Mesh(new T.CircleGeometry(0.2, 18), eyeWhite); w.scale.set(1, 1.15, 1); g.add(w);
+  const pu = new T.Mesh(new T.CircleGeometry(0.11, 14), eyeDark); pu.position.set(o.px * side + (o.gx || 0), o.py, 0.01); pu.scale.set(1, 1.15, 1); g.add(pu);
+  const hl = new T.Mesh(new T.CircleGeometry(0.03, 8), eyeWhite); hl.position.set(o.px * side + (o.gx || 0) + 0.04, o.py + 0.05, 0.02); g.add(hl);
+  /* upper lid: skin-coloured paper strip that slides down over the eye */
+  const lid = new T.Mesh(new T.PlaneGeometry(0.44, 1), new T.MeshBasicMaterial({ color: o.lidColor })); lid.position.set(0, 0.23, 0.03); lid.scale.y = 0.001;
+  g.add(lid);
+  g.userData.lid = lid; g.userData.base = o.lid;
+  /* brow */
+  const brow = new T.Mesh(new T.BoxGeometry(0.42, 0.075, 0.06), hairMat);
+  const by = 0.34 + o.browY + (o.browYS ? o.browYS[side > 0 ? 1 : 0] : 0); brow.position.set(0, by, 0.04); g.userData.by = by; brow.rotation.z = o.browTilt * side * -1 + (o.browExtra ? o.browExtra[side > 0 ? 1 : 0] : 0);
+  g.add(brow); g.userData.brow = brow; g.userData.pu = pu; g.userData.hl = hl; g.userData.o = o;
+  return g;
+}
+
+function makeHero(cfg) {
+  const hero = new T.Group(); const parts = {};
+  const sk = skinMat(cfg.skin);
+  /* torso */
+  const bodyG = new T.Group(); bodyG.position.y = 1.0; hero.add(bodyG); parts.body = bodyG;
+  const torso = mesh(new T.BoxGeometry(1.0, 1.05, 0.68), mat(cfg.shirt)); torso.position.y = 0.5; bodyG.add(torso);
+  const belt = box(1.04, 0.14, 0.72, mat(0x2a2030)); belt.position.y = 0.08; bodyG.add(belt);
+  const trim = box(1.02, 0.1, 0.7, mat(cfg.trim)); trim.position.y = 0.95; bodyG.add(trim);
+  /* legs */
+  parts.legs = [-1, 1].map(s => {
+    const lg = new T.Group(); lg.position.set(s * 0.26, 1.0, 0); hero.add(lg);
+    const l = box(0.38, 0.8, 0.4, mat(cfg.pants)); l.position.y = -0.4; lg.add(l);
+    const f = box(0.42, 0.22, 0.62, mat(0x2b2230)); f.position.set(0, -0.86, 0.08); lg.add(f); return lg;
+  });
+  /* arms */
+  parts.arms = [-1, 1].map(s => {
+    const a = new T.Group(); a.position.set(s * 0.64, 1.0 + 0.92, 0); hero.add(a);
+    const u = box(0.3, 0.78, 0.32, mat(cfg.shirt)); u.position.y = -0.38; a.add(u);
+    const h = mesh(new T.SphereGeometry(0.19, 8, 6), sk); h.position.y = -0.84; a.add(h); a.userData.hand = h; return a;
+  });
+  /* head */
+  const head = new T.Group(); head.position.y = 1.0 + 1.05 + 0.82; hero.add(head); parts.head = head;
+  const skull = mesh(new T.SphereGeometry(1, 20, 14), sk); skull.scale.set(1.0, 0.92, 0.96); head.add(skull);
+  const ears = [-1, 1].map(s => { const e = mesh(new T.SphereGeometry(0.16, 8, 6), sk); e.position.set(s * 0.97, -0.05, 0); head.add(e); return e; });
+  /* eyes */
+  parts.eyes = [-1, 1].map(s => {
+    const e = makeEye(s, cfg.eye); e.position.set(s * 0.38, 0.02, 0.89); e.rotation.y = s * 0.42; head.add(e); return e;
+  });
+  /* nose bump only (no mouth) */
+  const nose = mesh(new T.SphereGeometry(0.09, 6, 5), sk); nose.position.set(0, -0.2, 0.97); head.add(nose);
+  cfg.hair(head, hairMat, parts);
+  if (cfg.glasses) cfg.glasses(head, parts);
+  /* sword on back */
+  const sword = new T.Group(); parts.sword = sword; bodyG.add(sword);
+  const blade = mesh(new T.BoxGeometry(0.1, 1.9, 0.03), mat(0xc9d2e6, { roughness: 0.4, metalness: 0.4, map: null })); blade.position.y = 1.2; sword.add(blade);
+  const tip = mesh(new T.ConeGeometry(0.07, 0.25, 4), mat(0xc9d2e6, { roughness: 0.4, metalness: 0.4, map: null })); tip.position.y = 2.28; tip.rotation.y = Math.PI / 4; sword.add(tip);
+  const guard = box(0.55, 0.1, 0.12, mat(PAL.gold, { map: null })); guard.position.y = 0.2; sword.add(guard);
+  const grip = box(0.12, 0.42, 0.12, mat(cfg.grip || 0x4a2a35)); grip.position.y = -0.05; sword.add(grip);
+  const pommel = mesh(new T.OctahedronGeometry(0.12, 0), mat(PAL.gold, { map: null })); pommel.position.y = -0.3; sword.add(pommel);
+  const strap = box(1.06, 0.1, 0.74, mat(0x2a2030)); strap.position.set(0, 0.6, 0); strap.rotation.z = 0.62; bodyG.add(strap);
+  sword.userData.back = { p: new T.Vector3(0.08, 0.28, -0.55), r: new T.Euler(0.05, 0, 0.78) };
+  sword.userData.drawn = { p: new T.Vector3(0.88, 0.95, 0.5), r: new T.Euler(0.45, 0, -0.1) };
+  sword.position.copy(sword.userData.back.p); sword.rotation.copy(sword.userData.back.r);
+  if (cfg.extra) cfg.extra(hero, bodyG, parts);
+  hero.userData = { parts, cfg, walk: 0, draw: 0, arm: [0, 0], look: new T.Vector2(), blink: 0 };
+  return hero;
+}
+
+/* animation: speed 0 idle, ~1 walk, 2 charge; draw 0..1 */
+function animHero(h, t, speed, o = {}) {
+  const u = h.userData, p = u.parts, ph = t * (5.2 + speed * 2.2) + (o.phase || 0);
+  const amp = clamp(speed, 0, 1.6) * 0.62;
+  p.legs[0].rotation.x = Math.sin(ph) * amp; p.legs[1].rotation.x = -Math.sin(ph) * amp;
+  const idle = Math.sin(t * 1.6 + (o.phase || 0)) * 0.03;
+  p.arms[0].rotation.x = -Math.sin(ph) * amp * 0.8 + idle; p.arms[1].rotation.x = Math.sin(ph) * amp * 0.8 - idle;
+  p.arms[0].rotation.z = 0.06; p.arms[1].rotation.z = -0.06;
+  p.body.position.y = 1.0 + Math.abs(Math.sin(ph)) * 0.09 * clamp(speed, 0, 1.6) + Math.sin(t * 1.6) * 0.012;
+  p.body.rotation.z = Math.sin(ph) * 0.03 * speed;
+  p.head.position.y = 1.0 + 1.05 + 0.82 + Math.abs(Math.sin(ph)) * 0.09 * clamp(speed, 0, 1.6);
+  p.head.rotation.z = Math.sin(ph) * 0.03 * speed; p.head.rotation.y = (o.lookY || 0) * 1; p.head.rotation.x = (o.lookX || 0);
+  /* sword draw */
+  const d = o.draw || 0, S = p.sword, B = S.userData.back, D = S.userData.drawn, k = easeIO(d);
+  S.position.lerpVectors(B.p, D.p, k);
+  S.rotation.set(lerp(B.r.x, D.r.x, k), lerp(B.r.y, D.r.y, k), lerp(B.r.z, D.r.z, k));
+  if (d > 0) {
+    p.arms[1].rotation.x = lerp(p.arms[1].rotation.x, -2.4, k); p.arms[1].rotation.z = lerp(-0.06, -0.25, k);
+  }
+  /* blink + gaze */
+  const bl = (Math.sin(t * 0.9 + (o.phase || 0) * 3) > 0.985 ? 1 : 0);
+  p.eyes.forEach(e => {
+    const eo = e.userData.o, lid = e.userData.lid;
+    const cl = clamp(eo.lid + bl * 0.9 + (o.squint || 0), 0, 1);
+    lid.scale.y = Math.max(0.001, cl * 0.46); lid.position.y = 0.23 - cl * 0.23;
+    e.userData.pu.position.x = eo.px * (e.rotation.y > 0 ? 1 : -1) + (eo.gx || 0) + (o.gazeX || 0) * 0.07;
+    e.userData.hl.position.x = e.userData.pu.position.x + 0.04;
+    e.userData.brow.position.y = e.userData.by + (o.browLift || 0) * 0.06;
+  });
+  if (u.cfg.tick) u.cfg.tick(h, t, speed, ph);
+}
+
+/* ===== CAST: four heroes ===== */
+const ROUND = (r, n = 12) => new T.SphereGeometry(r, n, 8);
+function hairCap(head, m, o = {}) {
+  const cap = mesh(new T.SphereGeometry(1.06, 16, 10, 0, Math.PI * 2, 0, Math.PI * (o.cover || 0.52)), m);
+  cap.scale.set(1, 0.94, 1.0); cap.position.set(0, o.y || 0.05, o.z === undefined ? -0.06 : o.z); cap.rotation.x = o.tilt || -0.12; head.add(cap);
+  const back = mesh(new T.SphereGeometry(1.05, 16, 10, 0, Math.PI * 2, Math.PI * 0.35, Math.PI * 0.35), m);
+  back.scale.set(1, 0.94, 0.96); back.position.set(0, 0.0, -0.1); head.add(back);
+}
+function rectGlasses(head) {
+  const fm = mat(0x0d0c12, { map: null, flatShading: false });
+  [-1, 1].forEach(s => {
+    const w = 0.62, h = 0.46, t = 0.06, g = new T.Group(); g.position.set(s * 0.38, 0.0, 0.99); g.rotation.y = s * 0.42;
+    [[0, h / 2, w, t], [0, -h / 2, w, t], [-w / 2, 0, t, h], [w / 2, 0, t, h]].forEach(p => { const b = box(p[2], p[3], 0.07, fm); b.position.set(p[0], p[1], 0); g.add(b); });
+    const gl = new T.Mesh(new T.PlaneGeometry(w, h), new T.MeshBasicMaterial({ color: 0xbfd8ff, transparent: true, opacity: 0.12, depthWrite: false })); gl.position.z = 0.01; g.add(gl);
+    head.add(g);
+  });
+  const br = box(0.24, 0.06, 0.07, fm); br.position.set(0, 0.1, 1.02); head.add(br);
+  [-1, 1].forEach(s => { const a = box(0.06, 0.06, 0.8, fm); a.position.set(s * 0.98, 0.08, 0.55); a.rotation.y = s * -0.1; head.add(a); });
+}
+function roundGlasses(head) {
+  const fm = mat(0x2a2f3f, { map: null, flatShading: false });
+  [-1, 1].forEach(s => {
+    const g = new T.Group(); g.position.set(s * 0.4, 0.0, 0.99); g.rotation.y = s * 0.42;
+    const ring = mesh(new T.TorusGeometry(0.34, 0.035, 6, 20), fm); g.add(ring);
+    const gl = new T.Mesh(new T.CircleGeometry(0.34, 20), new T.MeshBasicMaterial({ color: 0xcfe8ff, transparent: true, opacity: 0.13, depthWrite: false })); gl.position.z = 0.01; g.add(gl);
+    head.add(g);
+  });
+  const br = box(0.2, 0.05, 0.06, fm); br.position.set(0, 0.07, 1.02); head.add(br);
+  [-1, 1].forEach(s => { const a = box(0.05, 0.05, 0.8, fm); a.position.set(s * 0.98, 0.08, 0.55); head.add(a); });
+}
+
+const CAST = {
+  novice: {
+    skin: 0x8f5f3c, shirt: 0x2d6a8a, trim: 0xd6a53a, pants: 0x30284f, grip: 0x7a3b3b,
+    eye: { px: 0.0, py: -0.02, lid: 0.2, browY: -0.05, browTilt: -0.42, lidColor: 0x8f5f3c },
+    hair: (h, m) => { hairCap(h, m, { cover: 0.56 }); const q = box(0.9, 0.18, 0.12, m); q.position.set(0, 0.68, 0.78); q.rotation.x = -0.35; h.add(q); },
+    glasses: rectGlasses,
+    extra: (hero, body) => {
+      const lp = new T.Group(); lp.position.set(-0.86, 0.22, 0.08); lp.rotation.set(0, 0, 0.16); body.add(lp);
+      const base = box(0.14, 0.9, 0.66, mat(0xaeb4c6, { map: null, roughness: 0.5, metalness: 0.3 })); lp.add(base);
+      const scr = box(0.05, 0.82, 0.58, mat(0x15131f, { map: null })); scr.position.x = 0.07; lp.add(scr);
+      const lg = new T.Mesh(new T.CircleGeometry(0.1, 5), basic(0x6fd0c8)); lg.rotation.y = -Math.PI / 2; lg.position.set(-0.075, 0, 0); lp.add(lg);
+      const st = box(1.02, 0.07, 0.04, mat(0x2a2030)); st.position.set(-0.3, 0.8, 0.1); st.rotation.z = -0.55; body.add(st);
+    }
+  },
+  cat: {
+    skin: 0xa8744c, shirt: 0x6a3a74, trim: 0xd9694a, pants: 0x2a3552, grip: 0x2d6a68,
+    eye: { px: 0.0, py: -0.02, gx: 0.075, lid: 0.0, browY: 0.05, browTilt: 0.5, lidColor: 0xa8744c },
+    hair: (h, m) => {
+      hairCap(h, m, { cover: 0.5, z: -0.14, tilt: -0.3 });
+      for (let i = 0; i < 5; i++) { const f = box(0.34, 0.5, 0.1, m); f.position.set(-0.64 + i * 0.32, 0.62, 0.74 - Math.abs(i - 2) * 0.07); f.rotation.set(-0.42, 0, (i - 2) * -0.1); h.add(f); }
+    },
+    extra: (hero, body, parts) => {
+      const can = new T.Group(); can.position.set(0, -0.84, 0.0); parts.arms[1].add(can); parts.can = can;
+      const cb = mesh(new T.CylinderGeometry(0.15, 0.15, 0.62, 10), mat(0x101014, { map: null, flatShading: false })); can.add(cb);
+      for (let i = 0; i < 3; i++) { const cl = box(0.07, 0.4, 0.03, basic(0x7ee03a)); cl.position.set((i - 1) * 0.085, 0.02, 0.15); cl.rotation.z = (i - 1) * 0.12; can.add(cl); }
+      const top = mesh(new T.CylinderGeometry(0.12, 0.15, 0.06, 10), mat(0x9a9aa8, { map: null })); top.position.y = 0.34; can.add(top);
+      can.rotation.x = -0.2; can.position.z = 0.1;
+    }
+  },
+  pedro: {
+    skin: 0xc8946a, shirt: 0x3d8a74, trim: 0xe0b24a, pants: 0x4a2d62, grip: 0xd9694a,
+    eye: { px: 0.0, py: -0.01, gx: -0.05, lid: 0.3, browY: 0.0, browTilt: 0.1, browYS: [0, 0.12], browExtra: [-0.1, 0.22], lidColor: 0xc8946a },
+    hair: (h, m) => {
+      hairCap(h, m, { cover: 0.5 });
+      const r = rng(13);
+      for (let i = 0; i < 26; i++) {
+        const a = r() * Math.PI * 2, e = r() * 1.15, rad = 1.08;
+        const c = mesh(new T.IcosahedronGeometry(0.26 + r() * 0.12, 0), m);
+        c.position.set(Math.sin(a) * Math.cos(e) * rad * 1.02, Math.sin(e) * rad * 0.95 * (e > 0.2 ? 1 : 0.9) + 0.1, Math.cos(a) * Math.cos(e) * rad * 0.95 - 0.15);
+        if (c.position.z > 0.6 && c.position.y < 0.5) c.position.z -= 0.5; h.add(c);
+      }
+      [-1, 1].forEach(s => { for (let k = 0; k < 4; k++) { const c = mesh(new T.IcosahedronGeometry(0.25, 0), m); c.position.set(s * (1.0 + k * 0.03), -0.2 - k * 0.3, -0.25 + k * 0.05); h.add(c); } });
+    },
+    glasses: roundGlasses,
+    extra: (hero, body, parts) => {
+      const hp = new T.Group(); hp.position.set(0, 1.0, 0.0); body.add(hp);
+      const band = mesh(new T.TorusGeometry(0.58, 0.1, 6, 18, Math.PI * 1.3), mat(0x15131f, { map: null })); band.rotation.set(Math.PI / 2, 0, Math.PI * 0.35 + Math.PI * 0.0); band.position.y = 0.1; hp.add(band);
+      [-1, 1].forEach(s => { const c = mesh(new T.CylinderGeometry(0.27, 0.27, 0.22, 10), mat(0xd9694a, { map: null })); c.rotation.z = Math.PI / 2; c.position.set(s * 0.56, 0.3, 0.12); hp.add(c); const p = mesh(new T.CylinderGeometry(0.2, 0.2, 0.05, 10), mat(0x15131f, { map: null })); p.rotation.z = Math.PI / 2; p.position.set(s * 0.68, 0.3, 0.12); hp.add(p); });
+      parts.hp = hp;
+    },
+    tick: (h, t, sp, ph) => { /* bob head to the beat when standing */ h.userData.parts.head.rotation.z += Math.sin(t * 7.2) * 0.05 * (1 - clamp(sp)); }
+  },
+  nyf: {
+    skin: 0xcf9d74, shirt: 0x3a2d4a, trim: 0xb3261e, pants: 0x232036, grip: 0x8f98ab,
+    eye: { px: 0.0, py: -0.03, lid: 0.46, browY: -0.02, browTilt: 0.0, lidColor: 0xcf9d74 },
+    hair: (h, m) => { hairCap(h, m, { cover: 0.52 }); const s = box(0.95, 0.12, 0.1, m); s.position.set(0, 0.62, 0.84); s.rotation.x = -0.4; h.add(s); },
+    extra: (hero, body, parts) => {
+      const cape = new T.Group(); cape.position.set(0, 1.0, -0.4); body.add(cape); parts.cape = cape;
+      const rows = 8, r = rng(3), sm_ = new Shards();
+      for (let y = 0; y < rows; y++) {
+        const n = 5 - Math.floor(y * 0.15), w = 1.1 + y * 0.08;
+        for (let x = 0; x < n + 1; x++) {
+          const px = (x - n / 2) * (w / n) + (y % 2 ? 0.1 : 0), py = -y * 0.34;
+          sm_.add(G.oct, mtx(px, py, -y * 0.015, 0.2, 0.22, 0.05), jitter([0x2d6a68, 0x1d4a50, 0x3d7f6a, 0x2a5a74][(x + y) % 4], 0.18));
+        }
+      }
+      const sc = sm_.build(); cape.add(sc);
+      const clo = box(1.0, 0.1, 0.12, mat(PAL.gold, { map: null })); clo.position.set(0, 0.06, 0.38); body.add(clo);
+      [-1, 1].forEach(s => { const sp = mesh(new T.ConeGeometry(0.2, 0.5, 4), mat(PAL.dragonRed)); sp.position.set(s * 0.62, 1.15, 0); sp.rotation.z = s * -0.5; body.add(sp); });
+      const scar = box(0.05, 0.4, 0.04, basic(0x8c4a3a)); scar.position.set(0.28, 0.0, 0.0); scar.rotation.z = 0.5;
+      const hd = hero.userData; hd.scarHolder = scar;
+    },
+    tick: (h, t, sp, ph) => { const c = h.userData.parts.cape; c.rotation.x = 0.18 + Math.sin(t * 2.3) * 0.06 + sp * 0.25; c.rotation.z = Math.sin(t * 1.7) * 0.04; }
+  }
+};
+const heroes = {};
+['novice', 'cat', 'pedro', 'nyf'].forEach(k => { const h = makeHero(CAST[k]); h.name = k; scene.add(h); heroes[k] = h; });
+
+/* ===== ALEVEL: three-headed dragon from interlocking polygons ===== */
+const DR = { root: new T.Group(), necks: [], wings: [], tail: [], legs: [], lights: [] };
+const dragonCols = [PAL.dragonRed, PAL.dragonRed, PAL.dragonDark, PAL.dragonHot, 0x8f1b1c];
+const pick = a => a[(R() * a.length) | 0];
+const shardGeos = [G.tet, G.oct, G.ico, G.tet];
+
+function ringShards(sh, y, r, n, size, cols, cutY = 1) {
+  for (let i = 0; i < n; i++) {
+    const a = i / n * Math.PI * 2 + R() * 0.3;
+    const g = pick(shardGeos), s = size * (0.8 + R() * 0.7);
+    sh.add(g, mtx(Math.cos(a) * r, y + (R() - .5) * size * 0.8, Math.sin(a) * r * cutY, s * 1.1, s, s * 1.1, R() * 6, R() * 6, R() * 6), jitter(pick(cols), 0.28));
+  }
+}
+function spike(sh, x, y, z, s, rx, ry, rz, col) { sh.add(G.cone4, mtx(x, y, z, s * 0.55, s, s * 0.55, rx, ry, rz), col); }
+
+/* ---- clean lofted construction: antiprism rings give sharp, readable interlocking triangles ---- */
+Shards.prototype.tri = function (a, b, c, col) {
+  this.pos.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z); this._c.set(col);
+  for (let i = 0; i < 3; i++) this.col.push(this._c.r, this._c.g, this._c.b);
+};
+function ringPts(r, sides, off) {
+  const pts = [];
+  for (let j = 0; j < sides; j++) {
+    const a = (j + off) / sides * Math.PI * 2, ca = Math.cos(a) * r.ru, sa = Math.sin(a) * r.rv;
+    pts.push(new T.Vector3(r.c[0] + r.u[0] * ca + r.v[0] * sa, r.c[1] + r.u[1] * ca + r.v[1] * sa, r.c[2] + r.u[2] * ca + r.v[2] * sa));
+  }
+  return pts;
+}
+function loft(sh, rings, sides, colorFn, caps) {
+  const P = rings.map((r, i) => ringPts(r, sides, (i % 2) * 0.5));
+  for (let i = 0; i < P.length - 1; i++) {
+    const A = P[i], B = P[i + 1];
+    for (let j = 0; j < sides; j++) {
+      const j1 = (j + 1) % sides;
+      if (i % 2 === 0) { sh.tri(A[j], A[j1], B[j], colorFn(i, j, 0)); sh.tri(A[j1], B[j1], B[j], colorFn(i, j, 1)); }
+      else { sh.tri(A[j], A[j1], B[j1], colorFn(i, j, 0)); sh.tri(A[j], B[j1], B[j], colorFn(i, j, 1)); }
+    }
+  }
+  if (caps) [0, P.length - 1].forEach(k => {
+    const r = rings[k], c = new T.Vector3(r.c[0], r.c[1], r.c[2]);
+    for (let j = 0; j < sides; j++) sh.tri(c, P[k][j], P[k][(j + 1) % sides], colorFn(k, j, 0));
+  });
+}
+const RED_A = 0xb3261e, RED_B = 0x8c1c1c, RED_C = 0xc93a28, BONE = 0xe0c08f;
+const redFn = (sides, belly) => (i, j, k) => {
+  if (belly) { const a = (j + 0.5) / sides * Math.PI * 2; if (Math.sin(a) < -0.5) return (i + j) % 2 ? BONE : 0xcfae7b; }
+  return (i + j + k) % 3 === 0 ? RED_C : (i + j + k) % 2 ? RED_A : RED_B;
+};
+const SOLID = { side: T.DoubleSide };
+
+/* body: a faceted barrel with bone belly, hot-orange spines on top */
+(function body() {
+  const sh = new Shards(), U = [1, 0, 0], Vv = [0, 1, 0];
+  const prof = [[11.5, 1.4, 1.6, 6.1], [8.8, 3.7, 4.2, 6.8], [5.2, 5.0, 5.4, 7.2], [1.0, 5.5, 5.8, 7.4], [-3.0, 5.2, 5.5, 7.2], [-7.0, 4.4, 4.8, 6.9], [-10.5, 2.6, 3.0, 6.5]];
+  loft(sh, prof.map(p => ({ c: [0, p[3], p[0]], u: U, v: Vv, ru: p[1], rv: p[2] })), 12, redFn(12, true), true);
+  for (let i = 0; i < 9; i++) { const z = 8 - i * 2.1, y = 7.4 + 5.6 - Math.abs(z) * 0.05 - (z > 6 ? 1.2 : 0); spike(sh, 0, y - 0.3, z, 2.4 - Math.abs(i - 3) * 0.12, -0.1, 0, 0, 0xe0502e); }
+  DR.body = sh.build(SOLID); DR.root.add(DR.body);
+  const pl = new Shards();
+  for (let i = 0; i < 5; i++) pl.add(G.box, mtx(0, 2.3 - i * 0.25, 9.0 - i * 1.9, 3.6 - i * 0.25, 0.4, 1.5, 0.2, 0, 0), BONE);
+  DR.root.add(pl.build());
+})();
+
+function neckSeg(len, r0, r1) {
+  const sh = new Shards(), U = [1, 0, 0], Vv = [0, 0, 1];
+  loft(sh, [{ c: [0, -0.05, 0], u: U, v: Vv, ru: r0, rv: r0 }, { c: [0, len * 0.5, 0], u: U, v: Vv, ru: (r0 + r1) / 2 * 1.08, rv: (r0 + r1) / 2 * 1.08 }, { c: [0, len + 0.05, 0], u: U, v: Vv, ru: r1, rv: r1 }], 8, redFn(8, false), false);
+  sh.add(G.cone4, mtx(0, len * 0.55, -r0 * 0.95, r0 * 0.38, r0 * 0.95, r0 * 0.38, -0.55, 0.78, 0), 0xe0502e);
+  return sh.build(SOLID);
+}
+function makeHead() {
+  const g = new T.Group(), U = [1, 0, 0], Vv = [0, 0, 1], sh = new Shards();
+  const skullRings = [[-1.3, 1.4, 1.2, 0], [0.5, 1.85, 1.5, -0.05], [2.2, 1.25, 1.0, -0.15], [3.9, 0.78, 0.6, -0.25], [5.0, 0.3, 0.28, -0.3]];
+  loft(sh, skullRings.map(r => ({ c: [0, r[0], r[3]], u: U, v: Vv, ru: r[1], rv: r[2] })), 8, redFn(8, false), true);
+  [-1, 1].forEach(s => {
+    sh.add(G.cone4, mtx(s * 1.0, -0.5, -1.0, 0.5, 3.1, 0.5, -2.2, 0, s * 0.45), PAL.dragonBone);        /* big swept-back horns */
+    sh.add(G.cone4, mtx(s * 1.75, 0.5, -0.2, 0.3, 1.5, 0.3, 0, 0, s * -(Math.PI / 2 + 0.35)), PAL.dragonBone);    /* cheek spikes */
+    sh.add(G.cone4, mtx(s * 1.7, -0.5, 0.2, 0.28, 1.2, 0.28, 0, 0, s * -(Math.PI / 2 + 0.7)), PAL.dragonBone);
+    sh.add(G.tet, mtx(s * 0.95, 2.0, -1.0, 0.75, 0.85, 0.5, 0.2, 0.3, s * 0.4), RED_B);                  /* brow ridge */
+  });
+  for (let i = 0; i < 4; i++) spike(sh, 0, 0.1 + i * 1.1, -1.4 + i * 0.12, 0.85 - i * 0.07, -0.25, 0, 0, 0xe0502e);
+  g.add(sh.build(SOLID));
+  const tt = new Shards();
+  for (let i = 0; i < 6; i++) [-1, 1].forEach(s => tt.add(G.cone4, mtx(s * (0.85 - i * 0.09), 1.5 + i * 0.5, 0.45, 0.17, 0.62, 0.17, Math.PI / 2, 0, 0), 0xf3e8d0));
+  g.add(tt.build());
+  const jaw = new T.Group(); jaw.position.set(0, -0.2, 0.55); g.add(jaw);
+  const jsh = new Shards();
+  loft(jsh, [[0.3, 1.0, 0.45, 0.2], [2.4, 0.85, 0.38, 0.25], [4.2, 0.45, 0.25, 0.1], [4.7, 0.15, 0.15, 0.05]].map(r => ({ c: [0, r[0], r[3]], u: U, v: Vv, ru: r[1], rv: r[2] })), 6, redFn(6, false), true);
+  for (let i = 0; i < 5; i++) [-1, 1].forEach(s => jsh.add(G.cone4, mtx(s * (0.7 - i * 0.1), 1.3 + i * 0.6, -0.1, 0.15, 0.55, 0.15, -Math.PI / 2, 0, 0), 0xf3e8d0));
+  jaw.add(jsh.build(SOLID));
+  const eyes = [];
+  [-1, 1].forEach(s => {
+    const e = new T.Group(); g.add(e);
+    const glow = new T.Mesh(new T.CircleGeometry(0.7, 4), basic(0xffc42a, { fog: false })); glow.rotation.z = Math.PI / 4; glow.scale.set(1.45, 0.5, 1); e.add(glow);
+    const slit = new T.Mesh(new T.PlaneGeometry(0.11, 0.7), basic(0x1a0608)); slit.position.z = 0.02; e.add(slit);
+    e.position.set(s * 1.52, 1.35, -0.4); e.rotation.set(-0.1, s * 1.15, s * -0.35); eyes.push(glow);
+  });
+  const light = new T.PointLight(0xff7a2a, 0, 70, 2); light.position.set(0, 4, 0.5); g.add(light); DR.lights.push(light);
+  return { g, jaw, eyes, light };
+}
+const NECK = {
+  base: [[-3.0, 11.6, 8.2, -0.55], [0, 12.8, 8.8, 0], [3.0, 11.6, 8.2, 0.55]],
+  segs: 6, len: 3.7
+};
+for (let n = 0; n < 3; n++) {
+  const b = NECK.base[n], root = new T.Group(); root.position.set(b[0], b[1], b[2]); root.rotation.order = 'YXZ'; DR.root.add(root);
+  const segs = []; let parent = root;
+  for (let i = 0; i < NECK.segs; i++) {
+    const r0 = 2.2 - i * 0.2, r1 = 2.2 - (i + 1) * 0.2, sg = new T.Group(); if (i > 0) sg.position.y = NECK.len; parent.add(sg);
+    sg.add(neckSeg(NECK.len, r0, r1)); segs.push(sg); parent = sg;
+  }
+  const head = makeHead(); head.g.position.y = NECK.len; parent.add(head.g);
+  DR.necks.push({ root, segs, head, yaw: b[3], phase: n * 2.1 });
+}
+const POSE_COIL = [-1.2, 0.55, 0.55, 0.55, 0.5, 0.45, 0.9];
+const POSE_UP = [0.35, 0.28, -0.05, -0.28, -0.1, 0.35, 0.95];
+const POSE_FWD = [0.95, 0.1, -0.2, 0.28, 0.25, 0.25, 0.55];
+const POSE_LOW = [1.25, 0.12, -0.05, 0.2, 0.3, 0.35, 0.35];
+
+(function tail() {
+  const base = new T.Group(); base.position.set(0, 5.8, -9.8); DR.root.add(base); let parent = base;
+  for (let i = 0; i < 9; i++) {
+    const r0 = 2.7 - i * 0.28, r1 = 2.7 - (i + 1) * 0.28, g = new T.Group(); if (i > 0) g.position.z = -3.4; parent.add(g);
+    const sh = new Shards(), U = [1, 0, 0], Vv = [0, 1, 0];
+    loft(sh, [{ c: [0, 0, 0.05], u: U, v: Vv, ru: r0, rv: r0 * 1.05 }, { c: [0, 0, -1.7], u: U, v: Vv, ru: (r0 + r1) / 2 * 1.08, rv: (r0 + r1) / 2 * 1.1 }, { c: [0, 0, -3.45], u: U, v: Vv, ru: r1, rv: r1 * 1.05 }], 8, redFn(8, false), false);
+    sh.add(G.cone4, mtx(0, r0 * 1.05, -1.7, r0 * 0.42, r0 * 1.0, r0 * 0.42, 0.25, 0.78, 0), 0xe0502e);
+    g.add(sh.build(SOLID)); DR.tail.push(g); parent = g;
+  }
+  const tip = new Shards(); tip.add(G.cone4, mtx(0, 0, -4.4, 1.3, 3.2, 0.45, -Math.PI / 2, 0.78, 0), BONE); parent.add(tip.build());
+})();
+
+/* legs with claws */
+[[-1, 1], [1, 1], [-1, -1], [1, -1]].forEach(([sx, sz]) => {
+  const g = new T.Group(); g.position.set(sx * 4.4, 4.6, sz * 6.2); DR.root.add(g);
+  const sh = new Shards();
+  sh.add(G.oct, mtx(sx * 0.6, -1.2, 0, 2.0, 3.0, 2.0, 0.2, 0.5, 0.1), jitter(PAL.dragonRed, 0.2));
+  sh.add(G.ico, mtx(sx * 0.8, -3.6, 0.4, 1.4, 2.0, 1.4, 0.3, 0.5, 0), PAL.dragonDark);
+  sh.add(G.box, mtx(sx * 0.9, -4.5, 1.4, 3.0, 0.8, 3.4, 0, 0.2 * sx, 0), PAL.dragonDark);
+  for (let c = -1; c <= 1; c++) sh.add(G.cone4, mtx(sx * 0.9 + c * 0.9, -4.5, 3.4, 0.35, 1.3, 0.35, Math.PI / 2 + 0.2, 0.78, 0), PAL.dragonBone);
+  g.add(sh.build()); DR.legs.push(g);
+});
+
+/* wings: bone fingers + jagged polygon membrane */
+function boneBetween(sh, a, b, w, col) {
+  const d = b.clone().sub(a), len = d.length(), mid = a.clone().add(b).multiplyScalar(0.5);
+  const q = new T.Quaternion().setFromUnitVectors(new T.Vector3(0, 1, 0), d.normalize());
+  const m = new T.Matrix4().compose(mid, q, new T.Vector3(w, len, w)); sh.add(G.box, m, col);
+}
+function triGeo(a, b, c) {
+  const g = new T.BufferGeometry(); g.setAttribute('position', new T.Float32BufferAttribute([a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z], 3)); return g;
+}
+[-1, 1].forEach(s => {
+  const w = new T.Group(); w.position.set(s * 3.6, 11.0, 2.8); DR.root.add(w);
+  const V = (x, y, z) => new T.Vector3(s * x, y, z);
+  const sho = V(0, 0, 0), elb = V(7.5, 6.5, -2.0), wri = V(16, 5.0, -5.5);
+  const tips = [V(27, 2.0, -3.5), V(27.5, -4.5, -11), V(22, -9.5, -17.5), V(14, -10.5, -20), V(6.5, -7, -17.5)];
+  const bone = new Shards(), mem = new Shards();
+  boneBetween(bone, sho, elb, 0.75, PAL.dragonDark); boneBetween(bone, elb, wri, 0.6, PAL.dragonDark);
+  tips.forEach(t => boneBetween(bone, wri, t, 0.34, PAL.dragonBone));
+  bone.add(G.cone4, mtx(wri.x, wri.y + 0.8, wri.z, 0.35, 1.7, 0.35, 0, 0, 0), PAL.dragonBone);
+  /* jagged membrane: each finger gap becomes a fan of small triangles that interlock */
+  const anchor = V(1, -3.2, -14);
+  for (let i = 0; i < tips.length - 1; i++) {
+    const a = tips[i], b = tips[i + 1], inner = a.clone().add(b).add(wri).multiplyScalar(1 / 3).lerp(anchor, 0.18 + i * 0.1);
+    const cols = [PAL.dragonRed, PAL.dragonHot, PAL.dragonDark, 0x8f1b1c];
+    mem.add(triGeo(wri, a, inner), new T.Matrix4(), jitter(cols[i % 4], 0.05));
+    mem.add(triGeo(a, b, inner), new T.Matrix4(), jitter(cols[(i + 1) % 4], 0.05));
+    const mid = a.clone().add(b).multiplyScalar(0.5).lerp(inner, 0.35);
+    mem.add(triGeo(inner, b, wri), new T.Matrix4(), jitter(cols[(i + 2) % 4], 0.05));
+    mem.add(triGeo(a, mid, inner), new T.Matrix4(), jitter(PAL.dragonHot, 0.05));
+  }
+  const last = tips[tips.length - 1];
+  mem.add(triGeo(wri, last, anchor), new T.Matrix4(), PAL.dragonDark); mem.add(triGeo(sho, wri, anchor), new T.Matrix4(), jitter(PAL.dragonRed, 0.05));
+  mem.add(triGeo(sho, anchor, V(0, -1.5, -8)), new T.Matrix4(), PAL.dragonDark);
+  const wm = mem.build({ side: T.DoubleSide, roughness: 0.8 }); w.add(wm); w.add(bone.build());
+  DR.wings.push({ g: w, s });
+});
+
+DR.root.position.copy(MOUNT); DR.root.position.y = -40; scene.add(DR.root);
+DR.root.traverse(o => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+/* fire: paper-flame shards */
+const FIRE = (() => {
+  const N = 1600, im = new T.InstancedMesh(new T.TetrahedronGeometry(1, 0), new T.MeshBasicMaterial({ color: 0xffffff, fog: false }), N);
+  im.frustumCulled = false; im.instanceMatrix.setUsage(T.DynamicDrawUsage);
+  const P = []; for (let i = 0; i < N; i++) P.push({ life: 1, max: 1, p: new T.Vector3(), v: new T.Vector3(), s: 1, rot: new T.Vector3(), head: 0 });
+  const d = new T.Object3D(); d.scale.set(0, 0, 0); d.updateMatrix(); for (let i = 0; i < N; i++) { im.setMatrixAt(i, d.matrix); im.setColorAt(i, new T.Color(0xffffff)); }
+  scene.add(im); return { im, P, N, cursor: 0, col: new T.Color(), dummy: new T.Object3D() };
+})();
+const fireRamp = [new T.Color(0xfff2b0), new T.Color(0xffc23a), new T.Color(0xf2692a), new T.Color(0xc2281f), new T.Color(0x4a1220)];
+function emitFire(head, n, spread, speed) {
+  const o = new T.Vector3(0, 4.0, 0.6); head.g.localToWorld(o);
+  const dir = new T.Vector3(0, 1, 0.12).transformDirection(head.g.matrixWorld);
+  for (let i = 0; i < n; i++) {
+    const p = FIRE.P[FIRE.cursor]; FIRE.cursor = (FIRE.cursor + 1) % FIRE.N;
+    p.life = 0; p.max = 1.0 + R() * 0.9; p.p.copy(o).addScaledVector(dir, R() * 1.2);
+    p.v.copy(dir).multiplyScalar(speed * (0.75 + R() * 0.5)); p.v.x += (R() - .5) * spread; p.v.y += (R() - .5) * spread; p.v.z += (R() - .5) * spread;
+    p.s = 0.55 + R() * 1.0; p.rot.set(R() * 6, R() * 6, R() * 6);
+  }
+}
+function updateFire(dt) {
+  const { im, P, dummy, col } = FIRE;
+  for (let i = 0; i < FIRE.N; i++) {
+    const p = P[i];
+    if (p.life >= p.max) { if (p.s !== 0) { dummy.scale.set(0, 0, 0); dummy.updateMatrix(); im.setMatrixAt(i, dummy.matrix); p.s = 0; } continue; }
+    p.life += dt; const k = p.life / p.max;
+    p.p.addScaledVector(p.v, dt); p.v.y += dt * 4.5; p.v.multiplyScalar(1 - dt * 0.35);
+    const sc = p.s * (0.5 + Math.sin(Math.min(1, k * 1.2) * Math.PI) * 1.3) * (1 + k * 1.6);
+    dummy.position.copy(p.p); dummy.rotation.set(p.rot.x + k * 5, p.rot.y + k * 4, p.rot.z); dummy.scale.set(sc, sc, sc); dummy.updateMatrix(); im.setMatrixAt(i, dummy.matrix);
+    const f = Math.min(0.999, k) * (fireRamp.length - 1), a = Math.floor(f);
+    col.copy(fireRamp[a]).lerp(fireRamp[a + 1], f - a); im.setColorAt(i, col);
+  }
+  im.instanceMatrix.needsUpdate = true; if (im.instanceColor) im.instanceColor.needsUpdate = true;
+}
+
+/* per-frame dragon pose.  fire = {0,1,2 -> intensity per head} */
+function updateDragon(t, dt, ctl) {
+  const rise = easeOut(clamp((t - 35.0) / 6.0));
+  DR.root.position.set(MOUNT.x, lerp(-36, 0, rise), MOUNT.z - lerp(6, 0, rise));
+  DR.root.rotation.y = ctl.yaw || 0; DR.root.rotation.x = ctl.pitch || 0;
+  const coil = 1 - easeIO(clamp((t - 36.2) / 4.2));
+  const roar = ctl.roar || 0, lunge = ctl.lunge || 0;
+  DR.necks.forEach((nk, n) => {
+    const w = Math.sin(t * 1.4 + nk.phase) * 0.06, w2 = Math.sin(t * 2.1 + nk.phase * 1.7) * 0.05;
+    const pose = POSE_COIL.map((c, i) => {
+      let up = lerp(POSE_FWD[i], POSE_UP[i], roar), low = lerp(up, POSE_LOW[i], lunge);
+      return lerp(low, c, coil);
+    });
+    nk.root.rotation.y = nk.yaw * lerp(0.35, 1.0, 1 - coil) + w * 0.6;
+    nk.root.rotation.x = pose[0] + w2;
+    nk.segs.forEach((sg, i) => { sg.rotation.x = pose[Math.min(i + 1, 5)] * (i === 0 ? 0.0 : 1) * 0.78 + (i > 0 ? Math.sin(t * 1.7 + i * 0.7 + nk.phase) * 0.045 : 0); sg.rotation.z = nk.yaw * 0.06 * i * (1 - coil); });
+    nk.head.g.rotation.x = pose[6] * 0.5;
+    const open = clamp((ctl.jaw ? ctl.jaw[n] : 0), 0, 1);
+    nk.head.jaw.rotation.x = 0.08 + open * 0.95 + Math.sin(t * 11 + n) * 0.03 * open;
+    const pul = 0.75 + Math.sin(t * 6 + n * 1.9) * 0.25 + roar * 0.4;
+    nk.head.eyes.forEach(e => { e.material.color.setRGB(1, 0.65 + pul * 0.3, 0.1 + pul * 0.1); e.scale.set(1.35 + roar * 0.3, 0.55 * (0.8 + pul * 0.3), 1); });
+    nk.head.light.intensity = (ctl.fire ? ctl.fire[n] : 0) * 3.2;
+    if (ctl.fire && ctl.fire[n] > 0.01) {
+      nk.root.updateWorldMatrix(true, true);
+      emitFire(nk.head, Math.round(ctl.fire[n] * 22), 3.2, 34);
+    }
+  });
+  const flap = ctl.flap === undefined ? 0 : ctl.flap;
+  DR.wings.forEach(w => {
+    const spread = easeOut(clamp((t - 38.0) / 3.0)) * (ctl.spread === undefined ? 1 : ctl.spread);
+    const beat = Math.sin(t * 3.6) * 0.22 * flap;
+    w.g.rotation.z = w.s * lerp(1.45, -0.05 + beat, spread); w.g.rotation.y = w.s * lerp(0.7, -0.12, spread); w.g.rotation.x = lerp(0.25, 0.0, spread);
+  });
+  DR.tail.forEach((g, i) => { g.rotation.y = Math.sin(t * 1.5 - i * 0.55) * 0.13; g.rotation.x = Math.sin(t * 1.1 - i * 0.4) * 0.04 + 0.03; });
+  updateFire(dt);
+}
+
+
+/* ===== HOMEPAGE STAGE (uses the exact cinematic world, heroes and dragon above) ===== */
+const canvas=document.getElementById('c');
+const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=T.PCFSoftShadowMap;
+const camera=new T.PerspectiveCamera(36,2,0.5,1200);
+const Z0=8, RX=roadX(Z0), FOCUS=new T.Vector3(RX,0,Z0);
+const lineup=[['nyf',.5],['novice',.3],['cat',.1],['pedro',-.25]];
+lineup.forEach(([k,ry],i)=>{const h=heroes[k]; h.position.set(RX+(i-1.5)*2.9,0,Z0); h.rotation.y=ry;});
+let camZ=Z0+13;
+function resize(){
+  const w=canvas.clientWidth,h=canvas.clientHeight,a=w/h;
+  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5)); renderer.setSize(w,h,false);
+  camera.aspect=a; camera.updateProjectionMatrix(); camZ=Z0+13+Math.max(0,1.5-a)*16;
+}
+addEventListener('resize',resize); resize();
+const clock=new T.Clock(); let last=0;
+function frame(){
+  const t=clock.getElapsedTime(), dt=Math.min(.05,t-last); last=t;
+  lineup.forEach(([k,ry],i)=>animHero(heroes[k],t,0,{phase:i*1.3,lookY:-ry*.8,gazeX:0}));
+  updateWorld(48,camera.position,FOCUS);           /* mountain split, dragon risen */
+  world.objs.grassUni.uTime.value=t; updateMotes(t,FOCUS.x,FOCUS.z);
+  updateDragon(48+t*.0,dt,{roar:.3+Math.sin(t*.7)*.15,flap:.5,jaw:[.25,.6+Math.sin(t*1.3)*.2,.25],fire:[0,.55,0]});
+  camera.position.set(RX-2+Math.sin(t*.2)*1.2,3.2,camZ);
+  camera.lookAt(RX-2.2,5.6,-40);
+  renderer.render(scene,camera); requestAnimationFrame(frame);
+}
+frame();
+
+}catch(e){console.error(e);document.querySelector(".hero").insertAdjacentHTML("beforeend","<p style='position:absolute;bottom:10px;left:10px;color:#ffb36a;font:12px monospace'>Scene error: "+e.message+"</p>")}
+</script>
+</body>
+</html>

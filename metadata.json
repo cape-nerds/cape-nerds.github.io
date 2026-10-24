@@ -1,0 +1,6 @@
+{
+  "name": "THE ROAD TO ALEVEL — 3D Animated Series",
+  "description": "An interactive 3D paper-craft animated series and daily study RPG tracker for our A-Level 2027 journey against the 3-headed dragon.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
