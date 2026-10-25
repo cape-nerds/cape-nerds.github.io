@@ -1396,7 +1396,7 @@ ev(58.4, () => Audio_.note(1318.5, 2.5, 0.04, 'sine'));
 const stage = document.getElementById('stage'), canvas = document.getElementById('c');
 let renderer, composer, bokeh, grade, useComposer = false, pr = Math.min(window.devicePixelRatio || 1, 1.5), prMin = 0.55, prNow = pr;
 function initRenderer() {
-  renderer = new T.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
+  renderer = new T.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: true });
   renderer.shadowMap.enabled = true; renderer.shadowMap.type = T.PCFSoftShadowMap; renderer.setClearColor(0x000000);
   try {
     if (window.__POST === true && T.EffectComposer && T.BokehPass && T.ShaderPass) {
@@ -1521,7 +1521,7 @@ let busy = false, preMode = false, pre = null, shown = -1, fpsMode = 30;
 const bm = new Map(), pend = new Set(), pv = document.getElementById('pv'), pvx = pv.getContext('2d');
 const progEl = document.getElementById('prog'), ringEl = document.getElementById('ring'), pctEl = document.getElementById('pct'), pmsgEl = document.getElementById('pmsg'), retryEl = document.getElementById('skip'), fpsBtn = document.getElementById('fpsb');
 function setProg(p) { p = clamp(p); ringEl.style.strokeDashoffset = String(326.7 * (1 - p)); pctEl.textContent = Math.round(p * 100) + '%'; }
-const blobOf = () => new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/jpeg', 0.84));
+const blobOf = () => new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/jpeg', 0.9));
 function dropPre() { bm.forEach(b => b.close()); bm.clear(); pend.clear(); shown = -1; pre = null; preMode = false; pv.style.display = 'none'; canvas.style.display = ''; }
 async function buildPre(fps) {
   if (busy) return false;
@@ -1606,6 +1606,7 @@ setInterval(() => { if (!playing) document.body.classList.remove('idle'); else i
 stage.addEventListener('click', e => { if (e.target.closest && e.target.closest('.btn, #ctl, #prog')) return; if (playing) pause(); else if (clockT > 0 && !ended) play(); });
 window.addEventListener('keydown', e => { if (e.code === 'Escape') { if (window.parent !== window) { window.parent.postMessage('close-trailer', '*'); } else { window.location.href = 'index.html'; } } if (e.code === 'Space') { e.preventDefault(); playing ? pause() : play(); } if (e.code === 'ArrowRight') seek(clockT + 5); if (e.code === 'ArrowLeft') seek(clockT - 5); });
 window.addEventListener('resize', resize);
+console.info('Trailer build 3: pre-rendered playback, controls in player');
 try { initRenderer(); resize(); requestAnimationFrame(tick); buildPre(30); } catch (err) { document.body.classList.add('fail'); console.error(err); }
 
 } catch (err) { showErr('Error: ' + (err && err.message ? err.message : err)); console.error(err); }
