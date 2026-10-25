@@ -46,11 +46,8 @@ body {
 @media (prefers-reduced-motion: reduce) { .boss.on { animation: none; } }
 /* cinematic finish: colour grade, film grain, anamorphic streak */
 #grade { background: linear-gradient(180deg, rgba(40,86,130,.30) 0%, rgba(0,0,0,0) 48%, rgba(255,120,50,.26) 100%); mix-blend-mode: soft-light; }
-#grain { opacity: .14; mix-blend-mode: overlay; background-size: 160px 160px; animation: grain .6s steps(6) infinite; }
-@keyframes grain { 0%{background-position:0 0} 20%{background-position:-40px 30px} 40%{background-position:60px -50px} 60%{background-position:-70px -20px} 80%{background-position:30px 70px} 100%{background-position:0 0} }
 #streak { inset: auto -10% auto -10%; top: 50%; height: .4cqw; background: linear-gradient(90deg, rgba(120,180,255,0), rgba(160,205,255,.95) 50%, rgba(120,180,255,0)); filter: blur(.12cqw); mix-blend-mode: screen; opacity: 0; }
-@media (prefers-reduced-motion: reduce) { #grain { animation: none; } }
-.ctr { inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; gap: 1.2cqw; transform: scale(.97); }
+@media (prefers-reduced-motion: reduce) { .ctr { inset: 0; display: grid; place-content: center; justify-items: center; text-align: center; gap: 1.2cqw; transform: scale(.97); }
 .ctr .small { font-size: 1.15cqw; letter-spacing: .7em; margin-right: -.7em; text-transform: uppercase; opacity: .9; }
 .ctr .ital { font: italic 500 3cqw 'Cormorant Garamond', Georgia, serif; color: #f0b98a; }
 .card.low { inset: auto 0 max(6cqw, 56px) 0; display: grid; justify-items: center; text-align: center; transform: translateY(1cqw); }
@@ -73,6 +70,31 @@ body.fail #ctl { display: none; }
 #scrub::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 14px; border-radius: 50%; background: var(--paper); border: 0; margin-top: -5px; box-shadow: 0 0 0 3px rgba(217,105,74,.35); }
 #scrub::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--paper); border: 0; }
 #scrub:focus-visible { outline: 2px solid var(--ember); outline-offset: 3px; }
+/* pre-render screen, smooth toggle, auto-hide controls */
+#prog { position: absolute; inset: 0; z-index: 30; display: none; flex-direction: column; align-items: center; justify-content: center; gap: 14px; background: rgba(7,6,13,.95); color: var(--paper); text-align: center; padding: 16px; }
+#prog.on { display: flex; }
+#prog .rw { position: relative; width: min(26cqw, 150px); min-width: 96px; aspect-ratio: 1; }
+#prog svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+#prog circle { fill: none; stroke-width: 7; }
+#prog .bgc { stroke: rgba(230,216,189,.16); }
+#ring { stroke: var(--ember); stroke-linecap: round; stroke-dasharray: 326.7; stroke-dashoffset: 326.7; }
+#pct { position: absolute; inset: 0; display: grid; place-items: center; font: 700 1.4rem system-ui, sans-serif; }
+#prog p { margin: 0; font: 13px/1.4 system-ui, sans-serif; opacity: .8; }
+#skip { font: 600 12px system-ui, sans-serif; color: var(--paper); background: none; border: 1px solid var(--line); border-radius: 999px; padding: 8px 16px; cursor: pointer; }
+#skip:hover { border-color: var(--ember); }
+#pv { position: absolute; inset: 0; width: 100%; height: 100%; display: none; }
+#smooth { position: absolute; left: 50%; transform: translateX(-50%); bottom: max(14%, 70px); z-index: 3; display: flex; gap: 8px; align-items: center; font: 600 13px system-ui, sans-serif; color: var(--paper); background: rgba(7,6,13,.6); border: 1px solid var(--line); padding: 8px 14px; border-radius: 999px; cursor: pointer; backdrop-filter: blur(6px); }
+#smooth input { accent-color: var(--ember); }
+body.rendering #go, body.rendering #ctl { display: none; }
+#fs { width: 32px; height: 32px; flex: none; border: 0; background: none; color: var(--paper); cursor: pointer; display: grid; place-items: center; padding: 0; }
+#fs svg { width: 18px; height: 18px; fill: currentColor; }
+body.idle #ctl, body.idle .home-btn { opacity: 0; pointer-events: none; }
+body.idle #stage { cursor: none; }
+#ctl, .home-btn { transition: opacity .35s; }
+#mute { width: 32px; height: 32px; flex: none; border: 0; background: none; color: var(--paper); cursor: pointer; display: grid; place-items: center; padding: 0; }
+#mute svg { width: 18px; height: 18px; fill: currentColor; } #mute .ic-off { display: none; } body.muted #mute .ic-on { display: none; } body.muted #mute .ic-off { display: block; }
+#fpsb { font: 700 11px system-ui, sans-serif; letter-spacing: .04em; border: 1px solid rgba(230,216,189,.45); border-radius: 999px; padding: 6px 10px; color: var(--paper); background: none; cursor: pointer; flex: none; }
+#fpsb:hover, #mute:hover, #fs:hover { color: var(--ember); }
 #bar-unused { position: absolute; left: 0; right: 0; bottom: 0; height: 2px; background: var(--ember); transform-origin: 0 50%; transform: scaleX(0); opacity: .85; }
 .btn {
   z-index: 3; position: absolute; left: 50%; top: 50%; translate: -50% -50%;
@@ -120,8 +142,8 @@ body.fail .btn { display: none; }
 <a href="index.html" class="home-btn" aria-label="Back to series"><svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>Back to Series</a>
 <div class="wrap">
   <div id="stage">
-    <canvas id="c"></canvas>
-    <div class="ov" id="vig"></div><div class="ov" id="grade"></div><div class="ov" id="flash"></div><div class="ov" id="streak"></div><div class="ov" id="grain"></div><div class="ov" id="fade"></div>
+    <canvas id="c"></canvas><canvas id="pv"></canvas>
+    <div class="ov" id="vig"></div><div class="ov" id="grade"></div><div class="ov" id="flash"></div><div class="ov" id="streak"></div><div class="ov" id="fade"></div>
     <div class="card hero" id="card-novice"><span class="by">Pradushan</span><span class="as">as</span><span class="role">Dr. Novice</span></div>
     <div class="card hero" id="card-pedro"><span class="by">Nithushi</span><span class="as">as</span><span class="role">Pedro</span></div>
     <div class="card hero" id="card-nyf"><span class="by">Tharuka</span><span class="as">as</span><span class="role">Not Your Friend</span></div>
@@ -129,10 +151,16 @@ body.fail .btn { display: none; }
     <div class="card ctr" id="card-presents"><span class="small">Cape-Nerds</span><span class="ital">presents</span></div>
     <div class="card low" id="card-tag"><span class="line">Four heroes. One dragon. Zero sleep.</span></div>
     <div class="card low" id="card-end"><span class="line">New episode every day &middot; until the 2027 A Levels</span></div>
+    <div class="card low" id="card-l1"><span class="line">Four travellers. One road.</span></div>
+    <div class="card low" id="card-l2"><span class="line">Something ancient is waking.</span></div>
+    <div class="card low" id="card-l3"><span class="line">No one has beaten it alone.</span></div>
+    <div class="card low" id="card-l4"><span class="line">So they stood together.</span></div>
+    <div class="card low" id="card-l5"><span class="line">Every hour is a blow.</span></div>
     <div class="card boss" id="card-dragon"><span class="role">ALevel</span><span class="sub">The Dragon</span></div>
     <div id="diag"></div>
     <div id="bar"></div>
-    <div id="ctl"><button id="pp" type="button" aria-label="Play or pause"><svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5v17l14-8.5z"/></svg><svg class="ic-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4.5v16H6zM13.5 4H18v16h-4.5z"/></svg></button><div class="trk" id="trk"><input id="scrub" type="range" min="0" max="60" step="0.05" value="0" aria-label="Seek"></div><span id="tm">0:00 / 1:00</span></div>
+    <div id="ctl"><button id="pp" type="button" aria-label="Play or pause"><svg class="ic-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5v17l14-8.5z"/></svg><svg class="ic-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 4h4.5v16H6zM13.5 4H18v16h-4.5z"/></svg></button><div class="trk" id="trk"><input id="scrub" type="range" min="0" max="60" step="0.05" value="0" aria-label="Seek"></div><span id="tm">0:00 / 1:00</span><button id="mute" type="button" aria-label="Mute or unmute"><svg class="ic-on" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zm11.5 3a4.5 4.5 0 0 0-2.5-4v8a4.5 4.5 0 0 0 2.5-4zM13 3.2v2.1a7 7 0 0 1 0 13.4v2.1a9 9 0 0 0 0-17.6z"/></svg><svg class="ic-off" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zm12.6 3 2.4-2.4-1.4-1.4-2.4 2.4-2.4-2.4-1.4 1.4 2.4 2.4-2.4 2.4 1.4 1.4 2.4-2.4 2.4 2.4 1.4-1.4z"/></svg></button><button id="fpsb" type="button" aria-label="Switch between 30 and 60 frames per second">30 FPS</button><button id="fs" type="button" aria-label="Toggle fullscreen"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5h5v2H7v3H5zm9 0h5v5h-2V7h-3zM5 14h2v3h3v2H5zm12 0h2v5h-5v-2h3z"/></svg></button></div>
+    <div id="prog"><div class="rw"><svg viewBox="0 0 120 120"><circle class="bgc" cx="60" cy="60" r="52"/><circle id="ring" cx="60" cy="60" r="52"/></svg><span id="pct">0%</span></div><p id="pmsg">Rendering the trailer&hellip;</p><button id="skip" type="button" style="display:none">Try again</button></div>
     <button class="btn" id="go" type="button" aria-label="Play with sound"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3.5v17l14-8.5z"/></svg></button>
     <button class="btn" id="again" type="button" aria-label="Play again"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5V2L7 6.5 12 11V8a5 5 0 1 1-5 5H5a7 7 0 1 0 7-8z"/></svg></button>
     <div id="fail">This page needs WebGL to play.</div>
@@ -1041,7 +1069,7 @@ const Audio_ = (() => {
     const AC = window.AudioContext || window.webkitAudioContext; if (!AC) return;
     ctx = new AC();
     comp = ctx.createDynamicsCompressor(); comp.threshold.value = -16; comp.ratio.value = 4;
-    master = ctx.createGain(); master.gain.value = 0.9; master.connect(comp); comp.connect(ctx.destination);
+    master = ctx.createGain(); master.gain.value = A._m ? 0 : 0.9; master.connect(comp); comp.connect(ctx.destination);
     /* hall reverb (generated impulse) for a cinematic space */
     { const rv = ctx.createConvolver(), rg = ctx.createGain(), rh = ctx.createBiquadFilter(), L = Math.floor(ctx.sampleRate * 3.4), ir = ctx.createBuffer(2, L, ctx.sampleRate);
       for (let c = 0; c < 2; c++) { const d = ir.getChannelData(c); for (let i = 0; i < L; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / L, 3); }
@@ -1122,6 +1150,7 @@ const Audio_ = (() => {
   };
   A.hit = (vol = 1) => { A.drum(vol, 70); A.drum(vol * 0.7, 48); A.rumble(3.2, 0.5); };
   A.chord = (root = 110, dur = 5, vol = 0.1) => { [1, 1.5, 2, 2.378, 3].forEach((r, i) => A.note(root * r, dur, vol / (1 + i * 0.3), 'triangle', i * 0.04)); };
+  A.setMute = m => { A._m = !!m; if (started) master.gain.setTargetAtTime(m ? 0 : 0.9, ctx.currentTime, 0.03); };
   /* swoosh that leads into a cut */
   A.whoosh = (vol = 0.2, dur = 0.8, when = 0) => {
     if (!started) return; const t = ctx.currentTime + when, s = noise(), f = ctx.createBiquadFilter(), g = ctx.createGain();
@@ -1363,11 +1392,6 @@ ev(55.4, () => Audio_.riser(0.9, 0.35));
 ev(56.35, () => { Audio_.braam(55, 6, 0.4); Audio_.choir(220, 6, 0.09); });
 ev(58.4, () => Audio_.note(1318.5, 2.5, 0.04, 'sine'));
 
-/* ---- film grain texture + cut flashes ---- */
-(function () { const c = makeCanvas(160, 160), g = c.getContext('2d'), d = g.createImageData(160, 160);
-  for (let i = 0; i < d.data.length; i += 4) { const v = (Math.random() * 255) | 0; d.data[i] = d.data[i + 1] = d.data[i + 2] = v; d.data[i + 3] = 255; }
-  g.putImageData(d, 0, 0); const el = document.getElementById('grain'); if (el) el.style.backgroundImage = 'url(' + c.toDataURL() + ')'; })();
-
 /* ---- renderer ---- */
 const stage = document.getElementById('stage'), canvas = document.getElementById('c');
 let renderer, composer, bokeh, grade, useComposer = false, pr = Math.min(window.devicePixelRatio || 1, 1.5), prMin = 0.55, prNow = pr;
@@ -1422,7 +1446,7 @@ const heroFire = new T.PointLight(0xff7a2a, 0, 46, 1.6); scene.add(heroFire);
 const flares = Object.keys(heroes).map(() => { const tex = (() => { const c = makeCanvas(64, 64), g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32); gr.addColorStop(0, 'rgba(255,244,214,1)'); gr.addColorStop(0.25, 'rgba(255,200,120,.6)'); gr.addColorStop(1, 'rgba(255,160,60,0)'); g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return new T.CanvasTexture(c); })();
   const s = new T.Sprite(new T.SpriteMaterial({ map: tex, blending: T.AdditiveBlending, transparent: true, depthWrite: false, fog: false })); s.visible = false; scene.add(s); return s; });
 let flash = 0;
-const CARDS = [['card-novice', 5.7, 10.3], ['card-cat', 11.7, 16.3], ['card-pedro', 17.7, 22.3], ['card-nyf', 23.7, 28.3], ['card-dragon', 41.15, 44.4], ['card-presents', 1.0, 4.4], ['card-tag', 30.2, 34.4], ['card-end', 58.6, 61]].map(c => ({ el: document.getElementById(c[0]), a: c[1], b: c[2], on: false }));
+const CARDS = [['card-novice', 5.7, 10.3], ['card-cat', 11.7, 16.3], ['card-pedro', 17.7, 22.3], ['card-nyf', 23.7, 28.3], ['card-dragon', 41.15, 44.4], ['card-presents', 1.0, 4.4], ['card-tag', 30.2, 34.4], ['card-end', 58.6, 61], ['card-l1', 3.0, 5.3], ['card-l2', 36.0, 40.2], ['card-l3', 44.8, 48.4], ['card-l4', 48.9, 51.3], ['card-l5', 51.8, 55.2]].map(c => ({ el: document.getElementById(c[0]), a: c[1], b: c[2], on: false }));
 function updateCards(t) { CARDS.forEach(c => { const on = t >= c.a && t < c.b; if (on !== c.on && c.el) { c.on = on; c.el.classList.toggle('on', on); } }); }
 function frame(t, dt) {
   updateCards(t);
@@ -1475,6 +1499,7 @@ function fireEvents(prev, t) { EV.forEach(e => { if (!e.done && e.t <= t && e.t 
 function tick(now) {
   requestAnimationFrame(tick);
   const dt = Math.min(0.05, (now - last) / 1000 || 0.016); last = now;
+  if (busy) return;
   if (playing && !scrubbing) {
     const prev = clockT; clockT = Math.min(DURATION, clockT + dt);
     fireEvents(prev, clockT);
@@ -1482,15 +1507,69 @@ function tick(now) {
     /* adaptive resolution */
     frames++; fpsT += dt; if (fpsT > 1.2) { const fps = frames / fpsT; frames = 0; fpsT = 0; if (fps < 26 && prNow > prMin) { prNow = Math.max(prMin, prNow - 0.15); applySize(); } else if (fps > 56 && prNow < pr) { prNow = Math.min(pr, prNow + 0.1); applySize(); } }
   }
-  frame(clockT, playing ? dt : 0.0001);
+  if (pre) { drawPre(clockT); overlays(clockT); }
   document.getElementById('bar').style.transform = 'scaleX(' + (clockT / DURATION).toFixed(4) + ')';
   syncCtl();
 }
-function play() {
+function play0() {
   Audio_.init(); Audio_.resume();
   if (ended || clockT >= DURATION) { clockT = 0; ended = false; EV.forEach(e => e.done = false); document.body.classList.remove('done'); }
   playing = true; document.body.classList.add('playing');
 }
+/* ==PRE== the trailer is baked frame by frame (never real time), then played back from memory */
+let busy = false, preMode = false, pre = null, shown = -1, fpsMode = 30;
+const bm = new Map(), pend = new Set(), pv = document.getElementById('pv'), pvx = pv.getContext('2d');
+const progEl = document.getElementById('prog'), ringEl = document.getElementById('ring'), pctEl = document.getElementById('pct'), pmsgEl = document.getElementById('pmsg'), retryEl = document.getElementById('skip'), fpsBtn = document.getElementById('fpsb');
+function setProg(p) { p = clamp(p); ringEl.style.strokeDashoffset = String(326.7 * (1 - p)); pctEl.textContent = Math.round(p * 100) + '%'; }
+const blobOf = () => new Promise((res, rej) => canvas.toBlob(b => b ? res(b) : rej(new Error('blob')), 'image/jpeg', 0.84));
+function dropPre() { bm.forEach(b => b.close()); bm.clear(); pend.clear(); shown = -1; pre = null; preMode = false; pv.style.display = 'none'; canvas.style.display = ''; }
+async function buildPre(fps) {
+  if (busy) return false;
+  busy = true; dropPre(); retryEl.style.display = 'none'; setProg(0); progEl.classList.add('on'); document.body.classList.add('rendering');
+  const N = Math.round(DURATION * fps), cw = stage.clientWidth;
+  pmsgEl.textContent = 'Rendering the trailer at ' + fps + ' fps\u2026';
+  try {
+    if (!canvas.toBlob || !window.createImageBitmap) throw new Error('unsupported');
+    let W = Math.min(1280, Math.round(cw * (window.devicePixelRatio || 1)));   /* 720p cap */
+    prNow = W / cw; applySize();
+    const t0 = performance.now(); for (let i = 0; i < 4; i++) { frame(0, 0.0001); await blobOf(); }
+    const ms = (performance.now() - t0) / 4;                                   /* quality tier from device speed */
+    if (ms > 110) W = Math.round(W * 0.6); else if (ms > 60) W = Math.round(W * 0.8);
+    prNow = W / cw; applySize();
+    const blobs = [];
+    for (let i = 0; i < N; i++) { frame(i / fps, 1 / fps); blobs.push(await blobOf()); if (i % 3 === 0) setProg(i / N); }
+    pre = { blobs, fps, N, w: canvas.width, h: canvas.height }; pv.width = pre.w; pv.height = pre.h;
+    CARDS.forEach(c => { c.on = false; if (c.el) c.el.classList.remove('on'); });
+    pv.style.display = 'block'; canvas.style.display = 'none'; preMode = true; shown = -1;
+    progEl.classList.remove('on'); document.body.classList.remove('rendering'); busy = false; return true;
+  } catch (e) {
+    console.warn('pre-render failed', e); dropPre(); busy = false;
+    pmsgEl.textContent = 'This browser could not render the trailer. Try again, or use a recent Chrome, Edge or Safari.';
+    retryEl.style.display = ''; return false;
+  }
+}
+function drawPre(t) {
+  const i = Math.min(pre.N - 1, Math.max(0, Math.floor(t * pre.fps)));
+  for (let j = i; j < Math.min(pre.N, i + 10); j++) if (!bm.has(j) && !pend.has(j)) {
+    pend.add(j); createImageBitmap(pre.blobs[j]).then(b => { pend.delete(j); if (pre && pre.blobs[j]) bm.set(j, b); else b.close(); }).catch(() => pend.delete(j));
+  }
+  let use = bm.has(i) ? i : -1;
+  for (let j = i - 1; use < 0 && j >= Math.max(0, i - 6); j--) if (bm.has(j)) use = j;
+  if (use >= 0 && use !== shown) { pvx.drawImage(bm.get(use), 0, 0, pre.w, pre.h); shown = use; }
+  for (const [k, b] of bm) if (k < i - 8 || k > i + 24) { b.close(); bm.delete(k); }
+}
+function overlays(t) {
+  updateCards(t); const inTitle = t >= TITLE_AT;
+  const fade = sm(0, 0.9, t) * (1 - sm(55.35, 56.05, t));
+  flash = Math.max(0, bump(34.95, 35.02, 35.05, 35.4, t) * 0.5 + bump(40.35, 40.45, 40.5, 40.9, t) * 0.3) + CUTS.reduce((a, c) => a + bump(c - 0.04, c, c + 0.03, c + 0.4, t) * 0.14, 0);
+  const fv = inTitle ? sm(0.0, 0.6, t - TITLE_AT) : fade, fe = document.getElementById('fade'), fl = document.getElementById('flash'), sk = document.getElementById('streak');
+  if (fe) fe.style.opacity = String(1 - fv); if (fl) fl.style.opacity = String(inTitle ? 0 : clamp(flash)); if (sk) sk.style.opacity = String(inTitle ? 0 : clamp(flash * 1.8));
+  Audio_.set(t, t);
+}
+function play() { if (busy || !pre) return; play0(); }
+retryEl.addEventListener('click', () => buildPre(fpsMode));
+fpsBtn.addEventListener('click', () => { if (busy) return; if (playing) pause(); fpsMode = fpsMode === 30 ? 60 : 30; fpsBtn.textContent = fpsMode + ' FPS'; buildPre(fpsMode); });
+/* ==/PRE== */
 function pause() { playing = false; Audio_.suspend(); document.body.classList.remove('playing'); }
 function seek(t) { clockT = clamp(t, 0, DURATION - 0.01); EV.forEach(e => e.done = e.t < clockT); }
 window.__seek = seek;
@@ -1511,10 +1590,23 @@ scrub.addEventListener('input', () => {
   syncCtl();
 });
 document.getElementById('pp').addEventListener('click', () => { if (playing) pause(); else play(); });
-stage.addEventListener('click', e => { if (e.target.closest && e.target.closest('.btn, #ctl')) return; if (playing) pause(); else if (clockT > 0 && !ended) play(); });
+/* ---- fullscreen toggle + auto-hiding controls ---- */
+const fsBtn = document.getElementById('fs'), fsEl = document.documentElement;
+const fsOn = () => document.fullscreenElement || document.webkitFullscreenElement;
+if (!(document.fullscreenEnabled || document.webkitFullscreenEnabled)) fsBtn.style.display = 'none';
+fsBtn.addEventListener('click', () => { try { if (fsOn()) (document.exitFullscreen || document.webkitExitFullscreen).call(document); else (fsEl.requestFullscreen || fsEl.webkitRequestFullscreen).call(fsEl); } catch (e) { console.warn(e); } });
+let muted = false; const muteBtn = document.getElementById('mute');
+function toggleMute() { muted = !muted; Audio_.setMute(muted); document.body.classList.toggle('muted', muted); }
+muteBtn.addEventListener('click', toggleMute);
+window.addEventListener('keydown', e => { if (e.code === 'KeyM') toggleMute(); });
+let idleT = 0; const ctlEl = document.getElementById('ctl');
+function wake() { document.body.classList.remove('idle'); clearTimeout(idleT); idleT = setTimeout(() => { if (playing && !scrubbing && !ctlEl.matches(':hover, :focus-within')) document.body.classList.add('idle'); }, 2500); }
+['pointermove', 'pointerdown', 'keydown', 'touchstart'].forEach(n => window.addEventListener(n, wake, { passive: true }));
+setInterval(() => { if (!playing) document.body.classList.remove('idle'); else if (!idleT) wake(); }, 700);
+stage.addEventListener('click', e => { if (e.target.closest && e.target.closest('.btn, #ctl, #prog')) return; if (playing) pause(); else if (clockT > 0 && !ended) play(); });
 window.addEventListener('keydown', e => { if (e.code === 'Escape') { if (window.parent !== window) { window.parent.postMessage('close-trailer', '*'); } else { window.location.href = 'index.html'; } } if (e.code === 'Space') { e.preventDefault(); playing ? pause() : play(); } if (e.code === 'ArrowRight') seek(clockT + 5); if (e.code === 'ArrowLeft') seek(clockT - 5); });
 window.addEventListener('resize', resize);
-try { initRenderer(); resize(); requestAnimationFrame(tick); } catch (err) { document.body.classList.add('fail'); console.error(err); }
+try { initRenderer(); resize(); requestAnimationFrame(tick); buildPre(30); } catch (err) { document.body.classList.add('fail'); console.error(err); }
 
 } catch (err) { showErr('Error: ' + (err && err.message ? err.message : err)); console.error(err); }
 </script>

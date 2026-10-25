@@ -70,11 +70,23 @@ footer{text-align:center;color:var(--mute);font-size:.78rem;padding:0 16px 30px}
 .motto-tag .hash{color:var(--ember);font-weight:800;font-size:.9rem}
 #tmodal iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
 #tclose{position:absolute;top:calc(10px + env(safe-area-inset-top,0px));right:12px;z-index:2;width:42px;height:42px;border-radius:50%;border:1.5px solid var(--ink);background:rgba(13,10,22,.7);color:var(--ink);font-size:1.2rem;cursor:pointer}
+#hv{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:none}
+#rw{position:fixed;inset:0;z-index:200;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#0d0a16;color:var(--ink);text-align:center;padding:20px}
+#rw.on{display:flex}
+#rw .rr{position:relative;width:min(34vw,160px);min-width:110px;aspect-ratio:1}
+#rw svg{width:100%;height:100%;transform:rotate(-90deg)}
+#rw circle{fill:none;stroke-width:7}
+#rw .rb{stroke:rgba(241,230,210,.14)}
+#rwring{stroke:var(--ember);stroke-linecap:round;stroke-dasharray:326.7;stroke-dashoffset:326.7}
+#rwpct{position:absolute;inset:0;display:grid;place-items:center;font:700 1.5rem system-ui,sans-serif}
+#rw h2{margin:0;font-size:1.1rem;letter-spacing:.3em;text-transform:uppercase}
+#rw p{margin:0;color:var(--mute);font-size:.82rem;max-width:300px}
 </style>
 </head>
 <body>
+<div id="rw" role="status" aria-live="polite"><div class="rr"><svg viewBox="0 0 120 120" aria-hidden="true"><circle class="rb" cx="60" cy="60" r="52"/><circle id="rwring" cx="60" cy="60" r="52"/></svg><b id="rwpct">0%</b></div><h2 class="serif">Rendering website</h2><p>First visit only. It is saved on your device, so next time it opens instantly.</p></div>
 <header class="hero" id="hero">
-  <canvas id="c"></canvas><div class="shade"></div><div id="tags"></div>
+  <canvas id="c"></canvas><canvas id="hv"></canvas><div class="shade"></div><div id="tags"></div>
   <div class="brand serif"><i></i>CAPE-NERDS</div>
   <div class="top serif"><small>CAPE-NERDS PRESENTS</small><h1>THE ROAD TO ALEVEL</h1></div>
   <div class="cta">
@@ -151,6 +163,59 @@ document.getElementById('tclose').onclick = closeTrailer;
 addEventListener('keydown', e => { if (e.key === 'Escape') closeTrailer(); });
 window.addEventListener('message', e => { if (e.data === 'close-trailer') closeTrailer(); });
 
+// ---- hero: rendered once (24 fps loop), cached in the browser, then played back ----
+const HERO_VER='1';   /* bump this number whenever the hero scene changes so every device re-renders once */
+const heroEl=document.getElementById('hero'); window.__paused=false;
+const rwEl=document.getElementById('rw'), rwRing=document.getElementById('rwring'), rwPct=document.getElementById('rwpct');
+function rwShow(){rwEl.classList.add('on');document.body.style.overflow='hidden'}
+function rwHide(){rwEl.classList.remove('on');document.body.style.overflow=''}
+function rwProgress(p){p=Math.max(0,Math.min(1,p));rwRing.style.strokeDashoffset=String(326.7*(1-p));rwPct.textContent=Math.round(p*100)+'%'}
+function idb(){return new Promise((res,rej)=>{if(!window.indexedDB)return rej(new Error('no idb'));const r=indexedDB.open('capenerds-hero',1);r.onupgradeneeded=()=>r.result.createObjectStore('kv');r.onsuccess=()=>res(r.result);r.onerror=()=>rej(r.error)})}
+async function idbGet(k){const db=await idb();return new Promise((res,rej)=>{const q=db.transaction('kv').objectStore('kv').get(k);q.onsuccess=()=>res(q.result);q.onerror=()=>rej(q.error)})}
+async function idbSet(k,v){const db=await idb();return new Promise((res,rej)=>{const tx=db.transaction('kv','readwrite');tx.objectStore('kv').put(v,k);tx.oncomplete=()=>res();tx.onerror=()=>rej(tx.error);tx.onabort=()=>rej(tx.error)})}
+function makeTags(){const box=document.getElementById('tags');box.innerHTML='';return ['NotYourFriend','Dr. Novice',"Schrödinger's cat",'Pedro'].map(n=>{const e=document.createElement('div');e.className='nt';e.textContent=n;box.appendChild(e);return e})}
+function placeTags(d,m,els){
+  const w=heroEl.clientWidth,h=heroEl.clientHeight,sc=Math.max(w/d.w,h/d.h),ox=(w-d.w*sc)/2,oy=(h-d.h*sc)/2;
+  for(let i=0;i<4;i++){
+    let nx=d.tags[m[0]][i*2],ny=d.tags[m[0]][i*2+1];
+    if(m[1]>=0){const b=d.tags[m[1]];if(b[i*2]>=0&&nx>=0){nx+=(b[i*2]-nx)*m[2];ny+=(b[i*2+1]-ny)*m[2]}}
+    const el=m.els[i];if(nx<0){el.style.display='none';continue}
+    el.style.display='';el.style.transform='translate(-50%,-100%) translate('+(ox+nx*d.w*sc)+'px,'+(oy+ny*d.h*sc-2)+'px)';
+  }
+}
+function startBaked(d){
+  const cv=document.getElementById('c'),hv=document.getElementById('hv'),x=hv.getContext('2d'),els=makeTags();
+  cv.style.display='none';hv.width=d.w;hv.height=d.h;hv.style.display='block';
+  const bm=new Map(),pend=new Set(),len=d.N-d.XF,normal=d.N-2*d.XF;
+  /* frames XF..N-XF play normally; the last XF frames cross-fade into the first XF, so the loop has no visible seam */
+  const map=p=>{const m=p<normal?[d.XF+p,-1,0]:[d.N-d.XF+(p-normal),p-normal,(p-normal+1)/d.XF];m.els=els;return m};
+  const need=j=>{if(bm.has(j)||pend.has(j))return;pend.add(j);createImageBitmap(d.blobs[j]).then(b=>{pend.delete(j);bm.set(j,b)}).catch(()=>pend.delete(j))};
+  const t0=performance.now();let shown=-1;rwHide();
+  (function loop(now){
+    requestAnimationFrame(loop);
+    if(window.__paused||document.hidden)return;
+    const p=Math.floor(((now-t0)/1000*d.fps)%len),keep=new Set();
+    for(let q=0;q<10;q++){const m=map((p+q)%len);need(m[0]);keep.add(m[0]);if(m[1]>=0){need(m[1]);keep.add(m[1])}}
+    const m=map(p);
+    if(!bm.has(m[0])||(m[1]>=0&&!bm.has(m[1])))return;
+    if(p!==shown){
+      x.globalAlpha=1;x.drawImage(bm.get(m[0]),0,0);
+      if(m[1]>=0){x.globalAlpha=m[2];x.drawImage(bm.get(m[1]),0,0);x.globalAlpha=1}
+      shown=p;placeTags(d,m,els);
+      for(const [k,b] of bm)if(!keep.has(k)){b.close();bm.delete(k)}
+    }
+  })(performance.now());
+}
+async function heroBoot(){
+  try{
+    const a=heroEl.clientWidth/Math.max(1,heroEl.clientHeight),bucket=a>=1.25?'wide':'tall',key='hero-v'+HERO_VER+'-'+bucket;
+    let c=null;try{c=await idbGet(key)}catch(e){}
+    if(c&&c.ver===HERO_VER&&c.blobs&&c.blobs.length>=c.N){startBaked(c);return}          /* cached: instant */
+    if(!(HTMLCanvasElement.prototype.toBlob&&window.createImageBitmap))return;
+    rwShow();rwProgress(0);await renderHero(key,bucket);
+  }catch(e){console.error(e);rwHide()}
+}
+async function renderHero(key,bucket){
 try{
 /* ===== CORE: helpers, materials, shard merging ===== */
 const T = THREE;
@@ -968,51 +1033,45 @@ function updateDragon(t, dt, ctl) {
 }
 
 
-/* ===== HOMEPAGE STAGE: exact cinematic world, heroes and dragon ===== */
-const canvas=document.getElementById('c'), heroEl=document.getElementById('hero');
-const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
-renderer.shadowMap.enabled=true; renderer.shadowMap.type=T.PCFSoftShadowMap;
+
+/* ===== first visit only: render the exact cinematic world, heroes and dragon, frame by frame ===== */
+const canvas=document.getElementById('c');
+const FPS=24,LOOP_S=8,XF=12,N=FPS*LOOP_S+XF;
+let W=bucket==='wide'?1280:720,H=bucket==='wide'?720:1280;     /* 720p cap */
+const renderer=new T.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance',preserveDrawingBuffer:true});
+renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap;
 const camera=new T.PerspectiveCamera(40,2,0.5,1200);
-const Z0=8, RX=roadX(Z0), FOCUS=new T.Vector3(RX,0,Z0);
+const Z0=8,RX=roadX(Z0),FOCUS=new T.Vector3(RX,0,Z0);
 const lineup=[['nyf',.5],['novice',.3],['cat',.1],['pedro',-.25]];
-lineup.forEach(([k,ry],i)=>{const h=heroes[k]; h.position.set(RX+(i-1.5)*2.9,0,Z0); h.rotation.y=ry;});
+lineup.forEach(([k,ry],i)=>{const h=heroes[k];h.position.set(RX+(i-1.5)*2.9,0,Z0);h.rotation.y=ry;});
 let camZ=Z0+13;
-const NT={nyf:'NotYourFriend',novice:'Dr. Novice',cat:'Schrödinger\'s cat',pedro:'Pedro'};
-const tagBox=document.getElementById('tags'), tagEls={}, _tp=new T.Vector3();
-Object.keys(NT).forEach(k=>{const d=document.createElement('div');d.className='nt';d.textContent=NT[k];tagBox.appendChild(d);tagEls[k]=d});
-function placeTags(){
-  const w=heroEl.clientWidth,h=heroEl.clientHeight;
-  lineup.forEach(([k])=>{
-    heroes[k].userData.parts.head.getWorldPosition(_tp); _tp.y+=(k==='pedro'?1.6:1.2); _tp.project(camera);
-    const el=tagEls[k];
-    if(_tp.z>1){el.style.display='none';return}
-    el.style.display=''; el.style.transform='translate(-50%,-100%) translate('+((_tp.x*.5+.5)*w)+'px,'+((-_tp.y*.5+.5)*h-2)+'px)';
-  });
-}
-function resize(){
-  const w=heroEl.clientWidth,h=heroEl.clientHeight,a=w/h;
-  renderer.setPixelRatio(Math.min(devicePixelRatio||1,1.5)); renderer.setSize(w,h,false);
-  camera.aspect=a; camera.fov=a<0.8?50:40; camera.updateProjectionMatrix(); camZ=Z0+13+Math.max(0,1.5-a)*16;
-}
-addEventListener('resize',resize); resize();
-window.__paused=false;
-const clock=new T.Clock(); let last=0;
-function frame(){
-  requestAnimationFrame(frame);
-  if(window.__paused) return;
-  const t=clock.getElapsedTime(), dt=Math.min(.05,t-last); last=t;
+function setSize(w,h){renderer.setPixelRatio(1);renderer.setSize(w,h,false);const a=w/h;camera.aspect=a;camera.fov=a<0.8?50:40;camera.updateProjectionMatrix();camZ=Z0+13+Math.max(0,1.5-a)*16}
+setSize(W,H);
+const _tp=new T.Vector3();
+function tagPos(){const o=[];lineup.forEach(([k])=>{heroes[k].userData.parts.head.getWorldPosition(_tp);_tp.y+=(k==='pedro'?1.6:1.2);_tp.project(camera);if(_tp.z>1)o.push(-1,-1);else o.push(_tp.x*.5+.5,-_tp.y*.5+.5)});return o}
+function step(t,dt){
   lineup.forEach(([k,ry],i)=>animHero(heroes[k],t,0,{phase:i*1.3,lookY:-ry*.8,gazeX:0}));
   updateWorld(48,camera.position,FOCUS);
-  world.objs.grassUni.uTime.value=t; updateMotes(t,FOCUS.x,FOCUS.z);
+  world.objs.grassUni.uTime.value=t;updateMotes(t,FOCUS.x,FOCUS.z);
   updateDragon(48,dt,{roar:.3+Math.sin(t*.7)*.15,flap:.5,jaw:[.25,.6+Math.sin(t*1.3)*.2,.25],fire:[0,.55,0]});
   camera.position.set(RX-2+Math.sin(t*.2)*1.2,3.2,camZ);
   camera.lookAt(RX-2.2,-2.7,-40);
-  renderer.render(scene,camera);
-  camera.updateMatrixWorld(); placeTags();
+  renderer.render(scene,camera);camera.updateMatrixWorld();
 }
-frame();
+const blobOf=()=>new Promise((res,rej)=>canvas.toBlob(b=>b?res(b):rej(new Error('blob')),'image/jpeg',0.84));
+const w0=performance.now();for(let i=0;i<3;i++){step(0,0.0001);await blobOf()}      /* warm-up + speed test */
+if((performance.now()-w0)/3>120){W=Math.round(W*.75);H=Math.round(H*.75);setSize(W,H)}  /* slower device: smaller frames */
+const blobs=[],tags=[];
+for(let i=0;i<N;i++){step(i/FPS,1/FPS);tags.push(tagPos());blobs.push(await blobOf());if(i%2===0)rwProgress(i/N)}
+const data={ver:HERO_VER,blobs,tags,fps:FPS,XF,N,w:canvas.width,h:canvas.height};
+rwProgress(1);
+try{await idbSet(key,data)}catch(e){console.warn('could not cache hero',e)}
+try{renderer.dispose();renderer.forceContextLoss&&renderer.forceContextLoss()}catch(e){}
+startBaked(data);
 
-}catch(e){console.error(e)}
+}catch(e){console.error(e);rwHide()}
+}
+heroBoot();
 </script>
 </body>
 </html>
